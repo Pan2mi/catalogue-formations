@@ -77,3 +77,14 @@ Conseil : installer une extension SMTP gratuite (ex. WP Mail SMTP) pour que les 
 - **Vidéos YouTube/Vimeo** : mettre les vidéos en « non répertoriées » pour qu'elles ne soient pas trouvables ailleurs.
 - **Vidéos téléversées** : limitées par la taille maximale autorisée par l'hébergeur ; elles occupent l'espace et la bande passante du site ; leur adresse directe reste accessible si on la connaît.
 - **Fichiers joints aux exercices** : stockés dans la médiathèque.
+
+## Essayer sans rien installer
+
+[▶ Ouvrir la démo dans WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/Pan2mi/catalogue-formations/main/playground/blueprint.json)
+
+Un WordPress s'ouvre dans le navigateur, avec l'extension, H5P et des contenus de démonstration.
+Rien n'est enregistré : recharger le lien repart de zéro.
+
+- Administratrice : connectée automatiquement
+- Apprenante : identifiant `apprenant`, mot de passe `apprenant` (accès ouvert à « Les fractions simples »)
+- Apprenant : identifiant `tom`, mot de passe `tom` (demande d'accès en attente)

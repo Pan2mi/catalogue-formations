@@ -1,0 +1,46 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"meta": {
+		"title": "Démo – Catalogue de formations",
+		"description": "Site d'essai avec l'extension Catalogue de formations, H5P et des contenus de démonstration.",
+		"author": "Pan2mi"
+	},
+	"landingPage": "/wp-admin/edit.php?post_type=if_notion",
+	"preferredVersions": { "php": "8.2", "wp": "latest" },
+	"features": { "networking": true },
+	"login": true,
+	"steps": [
+		{ "step": "setSiteLanguage", "language": "fr_FR" },
+		{
+			"step": "setSiteOptions",
+			"options": {
+				"blogname": "Démo – Catalogue de formations",
+				"users_can_register": "1",
+				"default_role": "subscriber",
+				"permalink_structure": "/%postname%/",
+				"timezone_string": "Europe/Paris"
+			}
+		},
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "git:directory",
+				"url": "https://github.com/Pan2mi/catalogue-formations",
+				"ref": "main",
+				"refType": "branch"
+			},
+			"options": { "activate": true, "targetFolderName": "catalogue-formations" }
+		},
+		{
+			"step": "installPlugin",
+			"pluginData": { "resource": "wordpress.org/plugins", "slug": "h5p" },
+			"options": { "activate": true, "onError": "skip-plugin" }
+		},
+		{
+			"step": "writeFile",
+			"path": "/wordpress/demo-content.php",
+			"data": { "resource": "url", "url": "https://raw.githubusercontent.com/Pan2mi/catalogue-formations/main/playground/demo-content.php" }
+		},
+		{ "step": "runPHP", "code": "<?php $cf_demo = true; require '/wordpress/demo-content.php';" }
+	]
+}

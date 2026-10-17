@@ -32,7 +32,7 @@ jobs:
         if: steps.exists.outputs.yes != '1'
         run: |
           mkdir -p build/catalogue-formations
-          rsync -a --exclude '.git' --exclude '.github' --exclude 'build' ./ build/catalogue-formations/
+          rsync -a --exclude '.git' --exclude '.github' --exclude 'build' --exclude 'playground' ./ build/catalogue-formations/
           cd build && zip -qr catalogue-formations.zip catalogue-formations
 
       - name: Publier la release
