@@ -34,8 +34,10 @@ function if_updater_release( $force = false ) {
 		array( 'timeout' => 10, 'headers' => array( 'Accept' => 'application/vnd.github+json', 'User-Agent' => 'catalogue-formations' ) )
 	);
 	if ( is_wp_error( $res ) || 200 !== wp_remote_retrieve_response_code( $res ) ) {
-		set_site_transient( 'if_gh_release', 0, HOUR_IN_SECONDS );
-		return null;
+		// Pas de release : on lit la version directement dans le code de la branche main.
+		$data = if_updater_from_branch();
+		set_site_transient( 'if_gh_release', $data ? $data : 0, $data ? 6 * HOUR_IN_SECONDS : HOUR_IN_SECONDS );
+		return $data;
 	}
 	$r       = json_decode( wp_remote_retrieve_body( $res ), true );
 	$package = '';
@@ -47,15 +49,38 @@ function if_updater_release( $force = false ) {
 	if ( ! $package && ! empty( $r['zipball_url'] ) ) {
 		$package = $r['zipball_url'];
 	}
-	$data = array(
+	$branch = if_updater_from_branch();
+	$data   = array(
 		'version' => ltrim( isset( $r['tag_name'] ) ? $r['tag_name'] : '', 'vV' ),
 		'package' => $package,
 		'notes'   => isset( $r['body'] ) ? $r['body'] : '',
 		'url'     => isset( $r['html_url'] ) ? $r['html_url'] : 'https://github.com/' . IF_GITHUB_REPO,
 		'date'    => isset( $r['published_at'] ) ? $r['published_at'] : '',
 	);
+	// Si la branche main est plus récente que la dernière release, on propose la branche.
+	if ( $branch && version_compare( $branch['version'], $data['version'], '>' ) ) {
+		$data = $branch;
+	}
 	set_site_transient( 'if_gh_release', $data, 6 * HOUR_IN_SECONDS );
 	return $data;
+}
+
+/** Version lue dans l'en-tête du fichier principal sur la branche main. */
+function if_updater_from_branch() {
+	$res = wp_remote_get( 'https://raw.githubusercontent.com/' . IF_GITHUB_REPO . '/main/catalogue-formations.php', array( 'timeout' => 10 ) );
+	if ( is_wp_error( $res ) || 200 !== wp_remote_retrieve_response_code( $res ) ) {
+		return null;
+	}
+	if ( ! preg_match( '/^\s*\*\s*Version:\s*([0-9.]+)/mi', wp_remote_retrieve_body( $res ), $m ) ) {
+		return null;
+	}
+	return array(
+		'version' => $m[1],
+		'package' => 'https://github.com/' . IF_GITHUB_REPO . '/archive/refs/heads/main.zip',
+		'notes'   => __( 'Nouvelle version disponible sur GitHub (voir CHANGELOG.md).', 'catalogue-formations' ),
+		'url'     => 'https://github.com/' . IF_GITHUB_REPO . '/blob/main/CHANGELOG.md',
+		'date'    => '',
+	);
 }
 
 function if_updater_check( $transient ) {

@@ -1,0 +1,45 @@
+# Publie automatiquement une release (avec catalogue-formations.zip)
+# quand la version du fichier principal change sur la branche main.
+name: Release automatique
+
+on:
+  push:
+    branches: [main]
+    paths: [catalogue-formations.php]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lire la version
+        id: v
+        run: echo "version=$(grep -m1 -E '^\s*\*\s*Version:' catalogue-formations.php | sed -E 's/.*Version:\s*//; s/\s+$//')" >> "$GITHUB_OUTPUT"
+
+      - name: Vérifier si la release existe déjà
+        id: exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "v${{ steps.v.outputs.version }}" >/dev/null 2>&1; then echo "yes=1" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Fabriquer le zip
+        if: steps.exists.outputs.yes != '1'
+        run: |
+          mkdir -p build/catalogue-formations
+          rsync -a --exclude '.git' --exclude '.github' --exclude 'build' ./ build/catalogue-formations/
+          cd build && zip -qr catalogue-formations.zip catalogue-formations
+
+      - name: Publier la release
+        if: steps.exists.outputs.yes != '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOTES=$(awk '/^## ${{ steps.v.outputs.version }}/{f=1;next} /^## /{f=0} f' CHANGELOG.md)
+          gh release create "v${{ steps.v.outputs.version }}" build/catalogue-formations.zip \
+            --title "Version ${{ steps.v.outputs.version }}" --notes "${NOTES:-Nouvelle version.}" --target "${{ github.sha }}"

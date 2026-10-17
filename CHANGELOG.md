@@ -1,5 +1,9 @@
 # Journal des versions
 
+## 2.1.1
+- Mises à jour : lecture de la version directement sur la branche main si aucune release n'existe.
+- Publication automatique des releases (GitHub Actions).
+
 ## 2.1.0
 - Mises à jour automatiques depuis GitHub (releases).
 
