@@ -1,0 +1,18 @@
+.cf-edit { border: 2px solid #2271b1; border-radius: 8px; padding: 14px 16px; background: #f6f9fc; display: grid; gap: 10px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; }
+.cf-edit-head { display: flex; align-items: center; gap: 8px; color: #1d2327; }
+.cf-edit-icon { font-size: 18px; }
+.cf-edit .components-button { justify-self: start; }
+.cf-file, .cf-help { margin: 0; color: #50575e; font-size: 13px; }
+.cf-preview { position: relative; }
+.cf-preview > div:first-child { pointer-events: none; }
+.cf-preview-hint { margin: 4px 0 0; font-size: 12px; color: #787c82; font-style: italic; }
+.cf-tracked { position: relative; outline: 1px dashed #9ec2e6; outline-offset: 4px; }
+.cf-tracked .cf-footer { margin-top: 8px; padding: 6px 10px; background: #f0f6fc; border-radius: 4px; font-size: 12px; color: #2c3338; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }
+.cf-hidden-title { font-size: 12px; color: #787c82; font-style: italic; margin: 0 0 6px; }
+.cf-tracked .components-placeholder { min-height: 140px; }
+.cf-tracked .components-placeholder .components-button { margin: 4px 6px 0 0; }
+.cf-h5p-edit { display: grid; gap: 10px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; }
+.cf-h5p-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.cf-h5p-card { display: grid; gap: 2px; padding: 12px 14px; border-radius: 6px; background: #f6f0ff; border: 1px solid #d9c7f5; }
+.cf-h5p-card span { color: #50575e; font-size: 12px; }
+.cf-h5p-card em { color: #50575e; font-size: 12px; }

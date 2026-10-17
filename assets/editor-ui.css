@@ -1,0 +1,6 @@
+.cf-quick-help { margin: 0 0 8px; color: #50575e; font-size: 12px; }
+.cf-quick-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.cf-quick .cf-quick-btn { height: auto !important; min-height: 64px; flex-direction: column; justify-content: center; gap: 2px; padding: 8px 4px !important; position: relative; font-weight: 600; }
+.cf-quick-icon { font-size: 22px; line-height: 1; }
+.cf-quick-count { position: absolute; top: 4px; right: 6px; background: #2271b1; color: #fff; border-radius: 10px; font-size: 11px; min-width: 18px; padding: 0 5px; line-height: 18px; }
+.cf-quick-total { margin: 8px 0 0; font-size: 12px; color: #50575e; }

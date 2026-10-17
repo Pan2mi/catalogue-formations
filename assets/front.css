@@ -1,0 +1,67 @@
+/* Styles simples, lisibles, qui s'adaptent au thème. */
+.if-notice { padding: 12px 16px; border-radius: 6px; margin: 0 0 16px; border-left: 4px solid; }
+.if-notice--ok { background: #e8f6ec; border-color: #1e8e3e; }
+.if-notice--info { background: #e8f0fe; border-color: #1a73e8; }
+.if-notice--error { background: #fde8e8; border-color: #c5221f; }
+
+.if-btn { display: inline-block; padding: 10px 18px; border-radius: 6px; border: 2px solid #1a4f8b; background: #1a4f8b; color: #fff !important; text-decoration: none; font-weight: 600; cursor: pointer; font-size: 1rem; line-height: 1.2; }
+.if-btn:hover, .if-btn:focus { background: #133a66; border-color: #133a66; }
+.if-btn:focus-visible { outline: 3px solid #f2b705; outline-offset: 2px; }
+.if-btn--ghost { background: transparent; color: #1a4f8b !important; }
+.if-btn--ghost:hover { background: #eef3fa; }
+.if-btn--small { padding: 6px 12px; font-size: .9rem; }
+.if-link { background: none; border: 0; color: #1a4f8b; text-decoration: underline; cursor: pointer; padding: 0 4px; }
+
+.if-badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: .85rem; font-weight: 600; background: #eee; color: #333; }
+.if-badge--active { background: #d1f0d8; color: #0a5c1f; }
+.if-badge--pending { background: #fff3cd; color: #6b4e00; }
+.if-badge--upcoming { background: #dbe9ff; color: #0b3d91; }
+.if-badge--expired { background: #eee; color: #555; }
+.if-badge--refused { background: #fbe0e0; color: #8a1f1f; }
+
+.if-box { border: 1px solid #ddd; border-radius: 8px; padding: 16px 20px; margin: 20px 0; background: #fafafa; }
+.if-meta { color: #555; }
+
+.if-progress { height: 12px; background: #e5e5e5; border-radius: 99px; overflow: hidden; margin: 4px 0; min-width: 120px; }
+.if-progress span { display: block; height: 100%; background: #1e8e3e; }
+
+.if-item { border-top: 1px solid #e5e5e5; padding: 16px 0; }
+.if-embed iframe { width: 100%; aspect-ratio: 16 / 9; height: auto; }
+.if-done { color: #1e8e3e; font-weight: 700; }
+.if-complete { margin-top: 10px; }
+.if-instructions { background: #f5f8fc; padding: 10px 14px; border-radius: 6px; }
+.if-answer { margin: 12px 0; padding: 10px 14px; border-left: 3px solid #1a4f8b; background: #fafafa; }
+.if-feedback { margin-top: 10px; padding: 10px 14px; background: #e8f6ec; border-radius: 6px; }
+.if-submit summary { cursor: pointer; font-weight: 600; margin: 10px 0; }
+.if-submit form, .if-request { display: grid; gap: 8px; max-width: 640px; }
+.if-submit textarea, .if-request textarea { width: 100%; }
+
+.if-filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 24px; }
+.if-filters label { display: grid; gap: 4px; font-weight: 600; }
+.if-cat-niveau { margin-bottom: 32px; }
+.if-cat-matiere { margin: 16px 0 8px; }
+.if-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.if-card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px; background: #fff; }
+.if-card h4 { margin: 0; }
+.if-card__img { width: 100%; height: auto; border-radius: 6px; }
+.if-card .if-request { margin-top: auto; }
+
+.if-table-wrap { overflow-x: auto; }
+.if-table { width: 100%; border-collapse: collapse; }
+.if-table th, .if-table td { padding: 10px; border-bottom: 1px solid #e5e5e5; text-align: left; vertical-align: middle; }
+@media (max-width: 640px) {
+	.if-table thead { display: none; }
+	.if-table tr { display: block; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 12px; padding: 8px; }
+	.if-table td { display: block; border: 0; padding: 4px 0; }
+	.if-table td::before { content: attr(data-label) " : "; font-weight: 600; }
+}
+.if-card__tags { font-size: .85rem; color: #555; margin: 0; }
+.if-item--locked { opacity: .75; background: #f6f6f6; border: 1px dashed #bbb; border-radius: 8px; padding: 12px 16px; margin: 12px 0; }
+.if-item--locked h3 { margin-top: 0; }
+.if-empty-item { color: #777; font-style: italic; }
+.if-pdf-preview { width: 100%; border: 1px solid #ddd; border-radius: 6px; margin: 8px 0; }
+.if-item .wp-block-video, .if-item .wp-block-embed, .if-item .wp-block-file { margin-bottom: 10px; }
+.cf-video-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; margin-bottom: 10px; }
+.if-item__title { margin-top: 0; }
+.cf-h5p-status { margin: 8px 0; padding: 8px 12px; border-radius: 6px; background: #fff3cd; color: #5c4300; }
+.cf-h5p-status.is-passed { background: #d1f0d8; color: #0a5c1f; font-weight: 600; }
