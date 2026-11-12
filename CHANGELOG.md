@@ -2,6 +2,7 @@
 
 ## 2.2.1
 - Correctif : les listes de choix (Inscrits, Apprenants, Accès) fonctionnent aussi dans WordPress Playground.
+- Filtres du catalogue : adresse explicite, compatible avec tous les réglages de liens.
 
 ## 2.2.0
 - Nouvelle page **Apprenants** : liste + fiche apprenant (notions, dates, avancement ; ajouter, modifier, retirer, valider).

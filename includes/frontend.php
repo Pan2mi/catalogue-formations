@@ -400,7 +400,15 @@ function if_sc_catalogue( $atts ) {
 		}
 		$selects = array_filter( $selects, function ( $s ) { return ! empty( $s[2] ); } );
 		if ( $selects ) {
-			echo '<form class="if-filters" method="get">';
+			// Adresse explicite (sinon le formulaire peut partir vers une autre page, ex. dans Playground).
+			$action = get_permalink();
+			echo '<form class="if-filters" method="get" action="' . esc_url( strtok( (string) $action, '?' ) ) . '">';
+			parse_str( (string) wp_parse_url( (string) $action, PHP_URL_QUERY ), $keep );
+			foreach ( $keep as $k => $v ) {
+				if ( is_scalar( $v ) ) {
+					echo '<input type="hidden" name="' . esc_attr( $k ) . '" value="' . esc_attr( $v ) . '">';
+				}
+			}
 			foreach ( $selects as $s ) {
 				echo '<label>' . esc_html( $s[1] ) . '<select name="' . esc_attr( $s[0] ) . '"><option value="">' . esc_html( $s[3] ) . '</option>';
 				foreach ( $s[2] as $t ) {
