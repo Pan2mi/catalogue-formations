@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 2.9.0
+- **Dupliquer une notion** : lien « Dupliquer » au survol dans Toutes les notions, ou encadré « Dupliquer » dans l'éditeur. Copie en brouillon avec contenus (blocs ou Elementor), niveaux, matières, image et réglages ; sans les inscrits.
+
 ## 2.8.0
 - **Quiz** intégré (bloc Gutenberg + widget Elementor, sans H5P) : QCM une ou plusieurs bonnes réponses, vrai/faux, réponse courte.
 - Corrigé automatiquement ; score minimum pour valider ; nombre d'essais ; mélange ; correction affichée après chaque essai, une fois réussi, ou jamais.

@@ -75,6 +75,10 @@ Bloc suivi → panneau **Restrictions d'accès** (Elementor : section du même n
 - **Tant que ce n'est pas rempli** : cadenas + ce qu'il faut faire, ou cacher complètement.
 - En tant que formatrice, vous voyez tout, avec un bandeau jaune qui rappelle les conditions.
 
+## Dupliquer une notion
+- **Toutes les notions** → survoler une notion → **Dupliquer**, ou encadré **Dupliquer** dans l'éditeur.
+- La copie est un brouillon « … (copie) » avec tous les contenus, niveaux, matières et réglages, sans les inscrits.
+
 ## 4. Gérer les accès — Formation → Accès
 - **Demandes en attente** : choisir les dates « du… au… » puis **Valider** (ou **Refuser**).
 - **Donner un accès directement** : utilisateur + notion + dates.
