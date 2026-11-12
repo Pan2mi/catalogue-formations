@@ -221,6 +221,15 @@ function if_page_access() {
 	<?php
 }
 
+/** Page de retour après une action (fiche apprenant, inscrits d'une notion…), sinon la page Accès. */
+function if_admin_back( $done ) {
+	$back = isset( $_REQUEST['back'] ) ? esc_url_raw( wp_unslash( $_REQUEST['back'] ) ) : ''; // phpcs:ignore
+	if ( $back && 0 === strpos( $back, admin_url() ) ) {
+		return add_query_arg( 'if_done', $done, remove_query_arg( 'if_done', $back ) );
+	}
+	return if_admin_url( 'if-access', array( 'if_done' => $done ) );
+}
+
 function if_admin_handle_grant() {
 	if ( ! current_user_can( if_cap() ) ) {
 		wp_die( esc_html__( 'Action non autorisée.', 'catalogue-formations' ) );
@@ -234,11 +243,18 @@ function if_admin_handle_grant() {
 	$valid     = '/^\d{4}-\d{2}-\d{2}$/';
 
 	if ( ! $user_id || ! $notion_id || ! preg_match( $valid, $start ) || ! preg_match( $valid, $end ) ) {
-		wp_safe_redirect( if_admin_url( 'if-access', array( 'if_done' => 'missing' ) ) );
+		wp_safe_redirect( if_admin_back( 'missing' ) );
 		exit;
 	}
+	if ( ! $access_id ) {
+		// Déjà une ligne pour cet apprenant et cette notion : on la met à jour plutôt que de créer un doublon.
+		$existing = if_get_access_rows( array( 'user_id' => $user_id, 'notion_id' => $notion_id ) );
+		if ( $existing ) {
+			$access_id = (int) $existing[0]->id;
+		}
+	}
 	$res = if_grant_access( $user_id, $notion_id, $start, $end, $access_id );
-	wp_safe_redirect( if_admin_url( 'if-access', array( 'if_done' => is_wp_error( $res ) ? 'dates' : 'granted' ) ) );
+	wp_safe_redirect( if_admin_back( is_wp_error( $res ) ? 'dates' : 'granted' ) );
 	exit;
 }
 
@@ -248,7 +264,7 @@ function if_admin_handle_refuse() {
 	}
 	check_admin_referer( 'if_admin_refuse' );
 	if_refuse_access( isset( $_POST['access_id'] ) ? absint( $_POST['access_id'] ) : 0 );
-	wp_safe_redirect( if_admin_url( 'if-access', array( 'if_done' => 'refused' ) ) );
+	wp_safe_redirect( if_admin_back( 'refused' ) );
 	exit;
 }
 
@@ -258,7 +274,7 @@ function if_admin_handle_delete() {
 	}
 	check_admin_referer( 'if_admin_delete' );
 	if_delete_access( isset( $_GET['access_id'] ) ? absint( $_GET['access_id'] ) : 0 );
-	wp_safe_redirect( if_admin_url( 'if-access', array( 'if_done' => 'deleted' ) ) );
+	wp_safe_redirect( if_admin_back( 'deleted' ) );
 	exit;
 }
 

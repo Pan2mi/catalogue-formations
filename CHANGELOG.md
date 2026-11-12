@@ -1,5 +1,12 @@
 # Journal des versions
 
+## 2.2.0
+- Nouvelle page **Apprenants** : liste + fiche apprenant (notions, dates, avancement ; ajouter, modifier, retirer, valider).
+- Nouvelle page **Inscrits** : apprenants d'une notion (inscrire, modifier, retirer, valider).
+- Raccourcis : colonne « Inscrits » dans la liste des notions, encadré dans l'éditeur, lien « Formation » dans la liste des comptes.
+- Après une action, retour sur la page d'où l'on vient.
+- Ajouter un accès déjà existant met à jour ses dates (plus de doublon).
+
 ## 2.1.1
 - Mises à jour : lecture de la version directement sur la branche main si aucune release n'existe.
 - Publication automatique des releases (GitHub Actions).

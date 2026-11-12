@@ -50,7 +50,17 @@
 - **Demandes en attente** : choisir les dates « du… au… » puis **Valider** (ou **Refuser**).
 - **Donner un accès directement** : utilisateur + notion + dates.
 - **Tous les accès** : modifier les dates, supprimer, voir le détail.
-- Un même utilisateur peut avoir plusieurs périodes sur une même notion.
+- Ajouter un accès pour une notion déjà attribuée met simplement ses dates à jour.
+
+### Fiche apprenant — Formation → Apprenants
+- Liste des apprenants (recherche par nom ou e-mail) → **Voir la fiche**.
+- La fiche montre ses notions, l'état, les dates et l'avancement.
+- **Ajouter une notion**, modifier les dates sur place (**Enregistrer**), **Retirer**, valider ou refuser ses demandes.
+- Raccourci : **Utilisateurs** → survoler un compte → **Formation**.
+
+### Inscrits d'une notion — Formation → Inscrits
+- Choisir une notion → liste des apprenants inscrits, mêmes boutons (inscrire, modifier, retirer, valider).
+- Raccourcis : colonne **Inscrits** et lien au survol dans **Toutes les notions**, encadré **Inscrits** dans l'éditeur de la notion.
 
 ## 5. Suivre et corriger
 - **Formation → Suivi** : tableau apprenants × notions avec le % d'avancement. Clic = détail.
