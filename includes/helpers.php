@@ -63,7 +63,7 @@ function if_get_exercises( $notion_id ) {
 function if_get_items( $notion_id ) {
 	$inline = if_inline_items( $notion_id );
 	if ( null !== $inline ) {
-		return array_map( function ( $it ) { return array( 'key' => $it['key'], 'type' => $it['type'], 'title' => $it['title'] ); }, $inline );
+		return array_map( function ( $it ) { return array( 'key' => $it['key'], 'type' => $it['type'], 'title' => $it['title'], 'free' => ! empty( $it['free'] ) ); }, $inline );
 	}
 	$items = array();
 	foreach ( if_get_videos( $notion_id ) as $v ) {

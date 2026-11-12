@@ -20,6 +20,7 @@ function if_front_assets() {
 	wp_enqueue_style( 'if-front', IF_URL . 'assets/front.css', array(), IF_VERSION );
 	wp_register_script( 'cf-video-track', IF_URL . 'assets/video-track.js', array(), IF_VERSION, true );
 	wp_localize_script( 'cf-video-track', 'cfVideo', array( 'ajax' => admin_url( 'admin-ajax.php' ), 'done' => '✔ ' . __( 'Vidéo vue', 'catalogue-formations' ), 'watched' => __( 'Vu : %d %%', 'catalogue-formations' ) ) );
+	wp_add_inline_script( 'cf-video-track', 'window.cfNextLabel = ' . wp_json_encode( __( 'Continuer', 'catalogue-formations' ) ) . ';', 'before' );
 }
 
 /* ---------- Petits éléments réutilisables ---------- */
@@ -214,6 +215,12 @@ function if_render_item( $notion_id, $type, $item, $inner_html = null, $wrapper 
 	if ( ! $user || ! if_user_can_view( $user, $notion_id ) ) {
 		$open = $wrapper ? '<section ' . str_replace( 'if-item ', 'if-item if-item--locked ', $wrapper ) . '>' : '<section class="if-item if-item--locked">';
 		return $open . '<h3>🔒 ' . esc_html( $title ) . '</h3><p>' . esc_html( sprintf( __( '%s disponible avec l\'accès à cette notion.', 'catalogue-formations' ), if_type_label( $type ) ) ) . '</p></section>';
+	}
+
+	// Parcours dans l'ordre : bloqué tant que le contenu précédent n'est pas terminé.
+	$blocker = $key ? if_item_blocker( $user, $notion_id, $key ) : null;
+	if ( $blocker ) {
+		return if_render_blocked( $type, $title, $blocker, $wrapper );
 	}
 
 	$completed = if_completed_keys( $user, $notion_id );

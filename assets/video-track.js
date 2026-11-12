@@ -26,6 +26,19 @@
 		return s;
 	}
 
+
+	/** Parcours dans l'ordre : le contenu suivant vient d'être débloqué. */
+	function offerNext(after, next) {
+		if (!next || !after) { return; }
+		var a = document.createElement('a');
+		a.className = 'if-btn if-btn--small cf-next';
+		a.href = '#' + next;
+		a.textContent = (window.cfNextLabel || 'Continuer') + ' →';
+		a.addEventListener('click', function (e) { e.preventDefault(); location.hash = next; location.reload(); });
+		after.appendChild(document.createTextNode(' '));
+		after.appendChild(a);
+	}
+
 	function Tracker(box) {
 		this.box = box;
 		this.threshold = parseInt(box.getAttribute('data-threshold'), 10) || 90;
@@ -70,6 +83,7 @@
 			.then(function (r) {
 				if (!r || !r.success) { self.done = false; return; }
 				if (self.status) { self.status.textContent = cfVideo.done; self.status.classList.add('is-done'); }
+				offerNext(self.status, r.data.next);
 				var bar = document.querySelector('.if-summary .if-progress span');
 				var txt = document.querySelector('.if-summary small');
 				if (bar && r.data.progress) { bar.style.width = r.data.progress.percent + '%'; }

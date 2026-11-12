@@ -37,6 +37,15 @@ abstract class CF_Elementor_Base extends Widget_Base {
 			)
 		);
 		$this->add_control(
+			'free',
+			array(
+				'label'        => __( 'Toujours accessible', 'catalogue-formations' ),
+				'description'  => __( 'Même si la notion est en « Parcours dans l\'ordre ».', 'catalogue-formations' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'return_value' => 'yes',
+			)
+		);
+		$this->add_control(
 			'show_title',
 			array(
 				'label'        => __( 'Afficher le titre', 'catalogue-formations' ),

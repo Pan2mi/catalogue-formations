@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 2.4.0
+- **Parcours dans l'ordre** (encadré « Parcours » de la notion) : chaque contenu suivi se débloque quand le précédent est terminé.
+- Exception par contenu : « Toujours accessible » (bloc Gutenberg et widget Elementor).
+- Contenu bloqué : cadenas + lien vers le contenu à terminer d'abord.
+- Vidéo ou activité H5P validée : bouton « Continuer → » vers le contenu débloqué.
+
 ## 2.3.0
 - Vidéo suivie : validation automatique quand la vidéo est vue (seuil réglable, 90 % par défaut) — fichier vidéo, YouTube et Vimeo.
 - Au choix pour chaque vidéo : automatique seulement, automatique + bouton « J'ai terminé », ou bouton seulement.

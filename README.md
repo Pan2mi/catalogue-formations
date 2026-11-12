@@ -54,6 +54,11 @@ Dans le bloc **Vidéo suivie** (ou le widget Elementor), panneau **Validation de
 - **Empêcher d'avancer dans la vidéo** : impossible de sauter plus loin que ce qui a déjà été regardé.
 Fonctionne avec un fichier vidéo, YouTube et Vimeo.
 
+## Imposer un ordre dans une notion
+- Dans l'éditeur de la notion, encadré **Parcours** (colonne de droite) : cocher **Parcours dans l'ordre**.
+- Chaque contenu suivi se débloque quand le précédent est terminé (vidéo vue, PDF « J'ai terminé », exercice envoyé, activité H5P réussie).
+- Exception : sur un contenu, activer **Toujours accessible** (panneau « Élément suivi » du bloc, ou widget Elementor). Il reste ouvert et ne bloque pas les suivants.
+
 ## 4. Gérer les accès — Formation → Accès
 - **Demandes en attente** : choisir les dates « du… au… » puis **Valider** (ou **Refuser**).
 - **Donner un accès directement** : utilisateur + notion + dates.

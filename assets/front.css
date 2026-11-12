@@ -69,3 +69,8 @@
 /* Vidéo : validation automatique */
 .cf-video-status { margin: 8px 0 0; font-size: .9em; color: #50575e; }
 .cf-video-status.is-done { color: #1e8e3e; font-weight: 700; }
+
+/* Parcours dans l'ordre */
+.if-item--sequence { opacity: .85; }
+.if-item--sequence p a { font-weight: 600; }
+.cf-next { margin-left: 6px; }

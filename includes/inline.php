@@ -98,6 +98,7 @@ function if_item_from_attrs( $type, $a ) {
 	if ( '' === $item['title'] ) {
 		$item['title'] = if_type_label( $type );
 	}
+	$item['free'] = ! empty( $a['free'] );
 	if ( 'video' === $type ) {
 		$item['url']        = isset( $a['url'] ) ? esc_url_raw( $a['url'] ) : '';
 		$item['completion'] = isset( $a['completion'] ) && in_array( $a['completion'], array( 'auto', 'both', 'button' ), true ) ? $a['completion'] : 'both';
@@ -139,6 +140,7 @@ function if_item_from_elementor_settings( $type, $id, $s ) {
 	$attrs = array(
 		'key'   => 'el_' . $id,
 		'title' => isset( $s['title'] ) ? $s['title'] : '',
+		'free'  => isset( $s['free'] ) && 'yes' === $s['free'],
 	);
 	if ( 'video' === $type ) {
 		$source       = isset( $s['source'] ) ? $s['source'] : 'url';
@@ -253,6 +255,7 @@ function if_register_blocks() {
 		'key'       => array( 'type' => 'string', 'default' => '' ),
 		'title'     => array( 'type' => 'string', 'default' => '' ),
 		'showTitle' => array( 'type' => 'boolean', 'default' => true ),
+		'free'      => array( 'type' => 'boolean', 'default' => false ),
 	);
 	$render = function ( $type ) {
 		return function ( $a, $content, $block ) use ( $type ) {

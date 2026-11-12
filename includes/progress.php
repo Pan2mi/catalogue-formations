@@ -95,7 +95,7 @@ function if_handle_complete() {
 
 	$user = get_current_user_id();
 	$back = get_permalink( $notion_id );
-	if ( ! $user || ! if_user_can_view( $user, $notion_id ) ) {
+	if ( ! $user || ! if_user_can_view( $user, $notion_id ) || if_item_blocker( $user, $notion_id, $key ) ) {
 		wp_safe_redirect( add_query_arg( 'if_msg', 'noaccess', $back ) );
 		exit;
 	}
@@ -123,13 +123,13 @@ function if_handle_video_done() {
 	check_ajax_referer( 'if_video_' . $notion_id . '_' . $key, 'nonce' );
 	$user = get_current_user_id();
 	$item = if_find_item( $notion_id, $key, 'video' );
-	if ( ! $user || ! $item || ! if_user_can_view( $user, $notion_id ) || ( isset( $item['completion'] ) && 'button' === $item['completion'] ) ) {
+	if ( ! $user || ! $item || ! if_user_can_view( $user, $notion_id ) || if_item_blocker( $user, $notion_id, $key ) || ( isset( $item['completion'] ) && 'button' === $item['completion'] ) ) {
 		wp_send_json_error( array( 'message' => 'noaccess' ), 403 );
 	}
 	global $wpdb;
 	$t = if_table( 'progress' );
 	$wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO $t (user_id, notion_id, item_key, completed_at) VALUES (%d, %d, %s, %s)", $user, $notion_id, $key, if_now() ) ); // phpcs:ignore
-	wp_send_json_success( array( 'progress' => if_progress( $user, $notion_id ) ) );
+	wp_send_json_success( array( 'progress' => if_progress( $user, $notion_id ), 'next' => if_next_unlocked( $user, $notion_id, $key ) ) );
 }
 
 /** Envoi d'une réponse à un exercice. */
@@ -140,7 +140,7 @@ function if_handle_submit() {
 
 	$user = get_current_user_id();
 	$back = get_permalink( $notion_id );
-	if ( ! $user || ! if_user_can_view( $user, $notion_id ) || ! if_find_item( $notion_id, $key, 'exercise' ) ) {
+	if ( ! $user || ! if_user_can_view( $user, $notion_id ) || ! if_find_item( $notion_id, $key, 'exercise' ) || if_item_blocker( $user, $notion_id, $key ) ) {
 		wp_safe_redirect( add_query_arg( 'if_msg', 'noaccess', $back ) );
 		exit;
 	}
@@ -231,7 +231,7 @@ function if_handle_pdf() {
 
 	$user = get_current_user_id();
 	$pdf  = if_find_item( $notion_id, $key, 'pdf' );
-	if ( ! $user || ! $pdf || ! if_user_can_view( $user, $notion_id ) ) {
+	if ( ! $user || ! $pdf || ! if_user_can_view( $user, $notion_id ) || if_item_blocker( $user, $notion_id, $key ) ) {
 		wp_die( esc_html__( 'Vous n\'avez pas accès à ce document.', 'catalogue-formations' ), '', array( 'response' => 403 ) );
 	}
 	$path = get_attached_file( (int) $pdf['attachment_id'] );

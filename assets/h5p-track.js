@@ -12,6 +12,19 @@
 	boxes.forEach(function (b) { byContent[b.getAttribute('data-content')] = b; });
 	var sent = {};
 
+
+	/** Parcours dans l'ordre : le contenu suivant vient d'être débloqué. */
+	function offerNext(after, next) {
+		if (!next || !after) { return; }
+		var a = document.createElement('a');
+		a.className = 'if-btn if-btn--small cf-next';
+		a.href = '#' + next;
+		a.textContent = (window.cfNextLabel || 'Continuer') + ' →';
+		a.addEventListener('click', function (e) { e.preventDefault(); location.hash = next; location.reload(); });
+		after.appendChild(document.createTextNode(' '));
+		after.appendChild(a);
+	}
+
 	function send(box, score, max) {
 		var key = box.getAttribute('data-key') + ':' + score + '/' + max;
 		if (sent[key]) { return; }
@@ -30,7 +43,7 @@
 			.then(function (r) {
 				if (!r || !r.success) { return; }
 				var st = box.querySelector('.cf-h5p-status');
-				if (st) { st.textContent = r.data.status; st.classList.toggle('is-passed', !!r.data.passed); }
+				if (st) { st.textContent = r.data.status; st.classList.toggle('is-passed', !!r.data.passed); offerNext(st, r.data.next); }
 				var bar = document.querySelector('.if-summary .if-progress span');
 				var txt = document.querySelector('.if-summary small');
 				if (bar && r.data.progress) { bar.style.width = r.data.progress.percent + '%'; }

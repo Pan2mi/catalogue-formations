@@ -130,7 +130,7 @@ function if_h5p_ajax_result() {
 	check_ajax_referer( 'if_h5p_' . $notion_id . '_' . $key, 'nonce' );
 	$user = get_current_user_id();
 	$item = if_find_item( $notion_id, $key, 'h5p' );
-	if ( ! $user || ! $item || ! if_user_can_view( $user, $notion_id ) ) {
+	if ( ! $user || ! $item || ! if_user_can_view( $user, $notion_id ) || if_item_blocker( $user, $notion_id, $key ) ) {
 		wp_send_json_error( array( 'message' => 'noaccess' ), 403 );
 	}
 	$content = isset( $_POST['content_id'] ) ? absint( $_POST['content_id'] ) : 0;
@@ -141,7 +141,7 @@ function if_h5p_ajax_result() {
 	$max    = isset( $_POST['max'] ) ? (int) $_POST['max'] : 0;
 	$passed = if_record_h5p_score( $user, $notion_id, $item, $score, $max );
 	$p      = if_progress( $user, $notion_id );
-	wp_send_json_success( array( 'passed' => $passed, 'status' => if_h5p_status_text( $user, $notion_id, $item ), 'progress' => $p ) );
+	wp_send_json_success( array( 'passed' => $passed, 'status' => if_h5p_status_text( $user, $notion_id, $item ), 'progress' => $p, 'next' => $passed ? if_next_unlocked( $user, $notion_id, $key ) : '' ) );
 }
 
 /* ---------- Affichage ---------- */

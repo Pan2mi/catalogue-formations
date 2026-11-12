@@ -71,7 +71,8 @@
 	var BASE_ATTRS = {
 		key: { type: 'string', default: '' },
 		title: { type: 'string', default: '' },
-		showTitle: { type: 'boolean', default: true }
+		showTitle: { type: 'boolean', default: true },
+		free: { type: 'boolean', default: false }
 	};
 	function attrs(extra) {
 		var o = {};
@@ -94,7 +95,8 @@
 			el(be.InspectorControls, null,
 				el(c.PanelBody, { title: 'Élément suivi', initialOpen: true },
 					el(c.TextControl, { label: 'Titre (aussi utilisé dans le suivi)', value: a.title, onChange: function (v) { props.setAttributes({ title: v }); }, __nextHasNoMarginBottom: true }),
-					el(c.ToggleControl, { label: 'Afficher le titre dans la page', checked: a.showTitle, onChange: function (v) { props.setAttributes({ showTitle: v }); }, __nextHasNoMarginBottom: true })
+					el(c.ToggleControl, { label: 'Afficher le titre dans la page', checked: a.showTitle, onChange: function (v) { props.setAttributes({ showTitle: v }); }, __nextHasNoMarginBottom: true }),
+					el(c.ToggleControl, { label: 'Toujours accessible', help: 'Même si la notion est en « Parcours dans l\'ordre » (réglage « Parcours » de la notion). Ce contenu ne bloque pas non plus les suivants.', checked: !!a.free, onChange: function (v) { props.setAttributes({ free: v }); }, __nextHasNoMarginBottom: true })
 				)
 			),
 			a.showTitle ? el(be.RichText, {
