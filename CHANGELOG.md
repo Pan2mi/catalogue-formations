@@ -1,5 +1,12 @@
 # Journal des versions
 
+## 2.6.0
+- Données personnelles (RGPD) :
+  - compte supprimé → accès, avancement, réponses et fichiers joints supprimés ;
+  - Outils → Exporter les données personnelles : accès, avancement, réponses et corrections ;
+  - Outils → Effacer les données personnelles : effacement de ces données ;
+  - Réglages → Confidentialité : texte proposé pour la politique de confidentialité.
+
 ## 2.5.1
 - Avancement : un contenu caché par ses conditions ne compte pas tant qu'il est caché (un contenu bloqué avec cadenas compte toujours).
 

@@ -102,6 +102,12 @@ Bloc suivi → panneau **Restrictions d'accès** (Elementor : section du même n
 
 Conseil : installer une extension SMTP gratuite (ex. WP Mail SMTP) pour que les e-mails arrivent bien.
 
+## Données personnelles (RGPD)
+- Supprimer un compte supprime aussi ses accès, son avancement, ses réponses et les fichiers joints.
+- **Outils → Exporter les données personnelles** : l'export contient aussi les données de formation.
+- **Outils → Effacer les données personnelles** : efface aussi les données de formation.
+- **Réglages → Confidentialité** : un texte est proposé pour la politique de confidentialité, à adapter.
+
 ## Limites à connaître
 - **Avancement des vidéos** : compté quand l'apprenant clique « J'ai terminé » (pas de détection automatique du visionnage).
 - **PDF** : le lien affiché vérifie l'accès. Mais l'adresse directe du fichier dans la médiathèque reste techniquement accessible si quelqu'un la connaît.
