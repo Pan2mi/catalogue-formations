@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 2.3.0
+- Vidéo suivie : validation automatique quand la vidéo est vue (seuil réglable, 90 % par défaut) — fichier vidéo, YouTube et Vimeo.
+- Au choix pour chaque vidéo : automatique seulement, automatique + bouton « J'ai terminé », ou bouton seulement.
+- Option « Empêcher d'avancer dans la vidéo ».
+- Disponible dans le bloc Gutenberg et le widget Elementor.
+
 ## 2.2.1
 - Correctif : les listes de choix (Inscrits, Apprenants, Accès) fonctionnent aussi dans WordPress Playground.
 - Filtres du catalogue : adresse explicite, compatible avec tous les réglages de liens.

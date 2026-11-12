@@ -65,3 +65,7 @@
 .if-item__title { margin-top: 0; }
 .cf-h5p-status { margin: 8px 0; padding: 8px 12px; border-radius: 6px; background: #fff3cd; color: #5c4300; }
 .cf-h5p-status.is-passed { background: #d1f0d8; color: #0a5c1f; font-weight: 600; }
+
+/* Vidéo : validation automatique */
+.cf-video-status { margin: 8px 0 0; font-size: .9em; color: #50575e; }
+.cf-video-status.is-done { color: #1e8e3e; font-weight: 700; }

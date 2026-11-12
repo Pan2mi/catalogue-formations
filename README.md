@@ -46,6 +46,14 @@
 2. **H5P Content → Add New** : H5P demande l'autorisation de communiquer avec H5P.org (« H5P Hub »). Accepter permet d'installer facilement les types d'activités ; refuser oblige à téléverser des fichiers .h5p.
 3. **Réglages → H5P** : laisser cochée l'option qui enregistre les résultats des utilisateurs (« Log results for signed in users »).
 
+## Valider une vidéo automatiquement
+Dans le bloc **Vidéo suivie** (ou le widget Elementor), panneau **Validation de la vidéo** :
+- **Automatiquement, quand elle est vue** : la vidéo compte dans l'avancement dès que l'apprenant en a regardé le pourcentage choisi (90 % par défaut).
+- **Automatiquement + bouton « J'ai terminé »** (par défaut).
+- **Seulement avec le bouton**.
+- **Empêcher d'avancer dans la vidéo** : impossible de sauter plus loin que ce qui a déjà été regardé.
+Fonctionne avec un fichier vidéo, YouTube et Vimeo.
+
 ## 4. Gérer les accès — Formation → Accès
 - **Demandes en attente** : choisir les dates « du… au… » puis **Valider** (ou **Refuser**).
 - **Donner un accès directement** : utilisateur + notion + dates.

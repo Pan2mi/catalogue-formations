@@ -113,12 +113,12 @@
 	wp.blocks.registerBlockType('catalogue-formations/video', {
 		apiVersion: 3,
 		title: 'Vidéo suivie',
-		description: 'Un vrai bloc Vidéo ou YouTube/Vimeo (tous ses réglages) + le bouton « J\'ai terminé » pour l\'avancement.',
+		description: 'Un vrai bloc Vidéo ou YouTube/Vimeo (tous ses réglages), validé automatiquement quand il est vu et/ou avec le bouton « J\'ai terminé ».',
 		category: 'catalogue-formations',
 		icon: 'video-alt3',
 		keywords: ['vidéo', 'video', 'youtube', 'vimeo', 'formation'],
 		supports: SUPPORTS,
-		attributes: attrs({ url: { type: 'string', default: '' } }),
+		attributes: attrs({ url: { type: 'string', default: '' }, completion: { type: 'string', default: 'both' }, threshold: { type: 'number', default: 90 }, noSkip: { type: 'boolean', default: false } }),
 		edit: function (props) {
 			useUniqueKey(props, 'v');
 			var a = props.attributes;
@@ -133,7 +133,27 @@
 			}, []);
 			var blockProps = be.useBlockProps({ className: 'if-item if-item--video cf-tracked' });
 			var choose = inner.length === 0 && !a.url;
+			var auto = a.completion !== 'button';
+			var footText = a.completion === 'auto' ? '✔ Validée automatiquement quand la vidéo est vue à ' + a.threshold + ' %' + (a.noSkip ? ' · avance rapide désactivée' : '')
+				: a.completion === 'button' ? '✔ Bouton « J\'ai terminé » ajouté pour l\'apprenant'
+				: '✔ Validée automatiquement à ' + a.threshold + ' % + bouton « J\'ai terminé »' + (a.noSkip ? ' · avance rapide désactivée' : '');
 			return el('div', blockProps,
+				el(be.InspectorControls, null,
+					el(c.PanelBody, { title: 'Validation de la vidéo', initialOpen: true },
+						el(c.SelectControl, {
+							label: 'Comment la vidéo est validée', value: a.completion, __nextHasNoMarginBottom: true,
+							options: [
+								{ value: 'auto', label: 'Automatiquement, quand elle est vue' },
+								{ value: 'both', label: 'Automatiquement + bouton « J\'ai terminé »' },
+								{ value: 'button', label: 'Seulement avec le bouton' }
+							],
+							onChange: function (v) { props.setAttributes({ completion: v }); }
+						}),
+						auto ? el(c.RangeControl, { label: 'Vue à partir de (%)', help: 'Part de la vidéo réellement regardée.', min: 10, max: 100, step: 5, value: a.threshold, onChange: function (v) { props.setAttributes({ threshold: v || 90 }); } }) : null,
+						auto ? el(c.ToggleControl, { label: 'Empêcher d\'avancer dans la vidéo', help: 'L\'apprenant ne peut pas aller plus loin que ce qu\'il a déjà regardé.', checked: a.noSkip, onChange: function (v) { props.setAttributes({ noSkip: v }); }, __nextHasNoMarginBottom: true }) : null,
+						el('p', { className: 'cf-help' }, 'Fonctionne avec un fichier vidéo, YouTube et Vimeo.')
+					)
+				),
 				header(props, '🎬', 'Titre de la vidéo'),
 				choose ? el(c.Placeholder, { icon: 'video-alt3', label: 'Vidéo suivie', instructions: 'D\'où vient la vidéo ?' },
 					el(c.Button, { variant: 'primary', onClick: function () { replaceInner(props.clientId, [wp.blocks.createBlock('core/video')]); } }, 'Fichier vidéo (téléverser / médiathèque)'),
@@ -141,7 +161,7 @@
 					el(c.Button, { variant: 'secondary', onClick: function () { replaceInner(props.clientId, [wp.blocks.createBlock('core/embed', { providerNameSlug: 'vimeo', type: 'video', responsive: true })]); } }, 'Vimeo'),
 					el(c.Button, { variant: 'secondary', onClick: function () { replaceInner(props.clientId, [wp.blocks.createBlock('core/embed')]); } }, 'Autre lien')
 				) : el(InnerBlocks, { allowedBlocks: ['core/video', 'core/embed', 'core/paragraph', 'core/heading', 'core/list', 'core/image'], templateLock: false }),
-				footer('✔ Bouton « J\'ai terminé » ajouté automatiquement pour l\'apprenant')
+				footer(footText)
 			);
 		},
 		save: function () { return el(InnerBlocks.Content); }

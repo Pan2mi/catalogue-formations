@@ -8,6 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 add_action( 'admin_post_if_complete', 'if_handle_complete' );
+add_action( 'wp_ajax_if_video_done', 'if_handle_video_done' );
 add_action( 'admin_post_if_submit', 'if_handle_submit' );
 add_action( 'admin_post_if_pdf', 'if_handle_pdf' );
 
@@ -98,7 +99,8 @@ function if_handle_complete() {
 		wp_safe_redirect( add_query_arg( 'if_msg', 'noaccess', $back ) );
 		exit;
 	}
-	if ( ! if_find_item( $notion_id, $key, 'video' ) && ! if_find_item( $notion_id, $key, 'pdf' ) ) {
+	$video = if_find_item( $notion_id, $key, 'video' );
+	if ( ( ! $video && ! if_find_item( $notion_id, $key, 'pdf' ) ) || ( $video && isset( $video['completion'] ) && 'auto' === $video['completion'] ) ) {
 		wp_safe_redirect( $back );
 		exit;
 	}
@@ -112,6 +114,22 @@ function if_handle_complete() {
 	}
 	wp_safe_redirect( $back . '#' . $key );
 	exit;
+}
+
+/** Vidéo vue (envoyé automatiquement par assets/video-track.js). */
+function if_handle_video_done() {
+	$notion_id = isset( $_POST['notion_id'] ) ? absint( $_POST['notion_id'] ) : 0;
+	$key       = isset( $_POST['key'] ) ? sanitize_key( wp_unslash( $_POST['key'] ) ) : '';
+	check_ajax_referer( 'if_video_' . $notion_id . '_' . $key, 'nonce' );
+	$user = get_current_user_id();
+	$item = if_find_item( $notion_id, $key, 'video' );
+	if ( ! $user || ! $item || ! if_user_can_view( $user, $notion_id ) || ( isset( $item['completion'] ) && 'button' === $item['completion'] ) ) {
+		wp_send_json_error( array( 'message' => 'noaccess' ), 403 );
+	}
+	global $wpdb;
+	$t = if_table( 'progress' );
+	$wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO $t (user_id, notion_id, item_key, completed_at) VALUES (%d, %d, %s, %s)", $user, $notion_id, $key, if_now() ) ); // phpcs:ignore
+	wp_send_json_success( array( 'progress' => if_progress( $user, $notion_id ) ) );
 }
 
 /** Envoi d'une réponse à un exercice. */

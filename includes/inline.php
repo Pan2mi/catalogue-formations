@@ -99,7 +99,10 @@ function if_item_from_attrs( $type, $a ) {
 		$item['title'] = if_type_label( $type );
 	}
 	if ( 'video' === $type ) {
-		$item['url'] = isset( $a['url'] ) ? esc_url_raw( $a['url'] ) : '';
+		$item['url']        = isset( $a['url'] ) ? esc_url_raw( $a['url'] ) : '';
+		$item['completion'] = isset( $a['completion'] ) && in_array( $a['completion'], array( 'auto', 'both', 'button' ), true ) ? $a['completion'] : 'both';
+		$item['threshold']  = isset( $a['threshold'] ) ? min( 100, max( 10, (int) $a['threshold'] ) ) : 90;
+		$item['no_skip']    = ! empty( $a['noSkip'] );
 	} elseif ( 'pdf' === $type ) {
 		$item['attachment_id'] = isset( $a['attachmentId'] ) ? absint( $a['attachmentId'] ) : 0;
 	} elseif ( 'h5p' === $type ) {
@@ -140,6 +143,9 @@ function if_item_from_elementor_settings( $type, $id, $s ) {
 	if ( 'video' === $type ) {
 		$source       = isset( $s['source'] ) ? $s['source'] : 'url';
 		$attrs['url'] = 'media' === $source ? ( isset( $s['video_file']['url'] ) ? $s['video_file']['url'] : '' ) : ( isset( $s['video_url'] ) ? $s['video_url'] : '' );
+		$attrs['completion'] = isset( $s['completion'] ) ? $s['completion'] : 'both';
+		$attrs['threshold']  = isset( $s['threshold']['size'] ) ? $s['threshold']['size'] : ( isset( $s['threshold'] ) && is_numeric( $s['threshold'] ) ? $s['threshold'] : 90 );
+		$attrs['noSkip']     = isset( $s['no_skip'] ) && 'yes' === $s['no_skip'];
 	} elseif ( 'pdf' === $type ) {
 		$attrs['attachmentId'] = isset( $s['file']['id'] ) ? $s['file']['id'] : 0;
 	} elseif ( 'h5p' === $type ) {
@@ -263,7 +269,12 @@ function if_register_blocks() {
 	register_block_type(
 		'catalogue-formations/video',
 		$common + array(
-			'attributes'      => $base_attrs + array( 'url' => array( 'type' => 'string', 'default' => '' ) ),
+			'attributes'      => $base_attrs + array(
+				'url'        => array( 'type' => 'string', 'default' => '' ),
+				'completion' => array( 'type' => 'string', 'default' => 'both' ),
+				'threshold'  => array( 'type' => 'number', 'default' => 90 ),
+				'noSkip'     => array( 'type' => 'boolean', 'default' => false ),
+			),
 			'render_callback' => $render( 'video' ),
 		)
 	);

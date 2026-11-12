@@ -117,6 +117,24 @@ class CF_Elementor_Video extends CF_Elementor_Base {
 		$this->add_control( 'video_file', array( 'label' => __( 'Fichier vidéo', 'catalogue-formations' ), 'type' => Controls_Manager::MEDIA, 'media_types' => array( 'video' ), 'condition' => array( 'source' => 'media' ) ) );
 		$this->end_controls_section();
 
+		$this->start_controls_section( 'validation', array( 'label' => __( 'Validation de la vidéo', 'catalogue-formations' ) ) );
+		$this->add_control(
+			'completion',
+			array(
+				'label'   => __( 'Comment la vidéo est validée', 'catalogue-formations' ),
+				'type'    => Controls_Manager::SELECT,
+				'default' => 'both',
+				'options' => array(
+					'auto'   => __( 'Automatiquement, quand elle est vue', 'catalogue-formations' ),
+					'both'   => __( 'Automatiquement + bouton « J\'ai terminé »', 'catalogue-formations' ),
+					'button' => __( 'Seulement avec le bouton', 'catalogue-formations' ),
+				),
+			)
+		);
+		$this->add_control( 'threshold', array( 'label' => __( 'Vue à partir de (%)', 'catalogue-formations' ), 'type' => Controls_Manager::SLIDER, 'size_units' => array( '%' ), 'range' => array( '%' => array( 'min' => 10, 'max' => 100, 'step' => 5 ) ), 'default' => array( 'unit' => '%', 'size' => 90 ), 'condition' => array( 'completion!' => 'button' ) ) );
+		$this->add_control( 'no_skip', array( 'label' => __( 'Empêcher d\'avancer dans la vidéo', 'catalogue-formations' ), 'description' => __( 'L\'apprenant ne peut pas aller plus loin que ce qu\'il a déjà regardé.', 'catalogue-formations' ), 'type' => Controls_Manager::SWITCHER, 'return_value' => 'yes', 'condition' => array( 'completion!' => 'button' ) ) );
+		$this->end_controls_section();
+
 		$this->start_controls_section( 'options', array( 'label' => __( 'Options de lecture', 'catalogue-formations' ) ) );
 		foreach ( array( 'autoplay' => __( 'Lecture automatique', 'catalogue-formations' ), 'mute' => __( 'Son coupé', 'catalogue-formations' ), 'loop' => __( 'En boucle', 'catalogue-formations' ) ) as $k => $l ) {
 			$this->add_control( $k, array( 'label' => $l, 'type' => Controls_Manager::SWITCHER, 'return_value' => 'yes' ) );
@@ -190,6 +208,7 @@ class CF_Elementor_Video extends CF_Elementor_Base {
 		$s           = $this->get_settings_for_display();
 		$item        = $this->base_item( $s );
 		$item['url'] = ( isset( $s['source'] ) && 'media' === $s['source'] ) ? ( isset( $s['video_file']['url'] ) ? $s['video_file']['url'] : '' ) : ( isset( $s['video_url'] ) ? $s['video_url'] : '' );
+		$item        = array_merge( if_item_from_elementor_settings( 'video', $this->get_id(), $s ), $item );
 		echo if_render_item( if_current_notion_id(), 'video', $item, $this->player( $s ) ); // phpcs:ignore
 	}
 }

@@ -18,6 +18,8 @@ add_shortcode( 'if_tableau_de_bord', 'if_sc_dashboard' );
 
 function if_front_assets() {
 	wp_enqueue_style( 'if-front', IF_URL . 'assets/front.css', array(), IF_VERSION );
+	wp_register_script( 'cf-video-track', IF_URL . 'assets/video-track.js', array(), IF_VERSION, true );
+	wp_localize_script( 'cf-video-track', 'cfVideo', array( 'ajax' => admin_url( 'admin-ajax.php' ), 'done' => '✔ ' . __( 'Vidéo vue', 'catalogue-formations' ), 'watched' => __( 'Vu : %d %%', 'catalogue-formations' ) ) );
 }
 
 /* ---------- Petits éléments réutilisables ---------- */
@@ -156,6 +158,33 @@ function if_complete_button( $notion_id, $key, $done ) {
 	return ob_get_clean();
 }
 
+/**
+ * Vidéo + validation : automatique (vue à X %), bouton « J'ai terminé », ou les deux.
+ * Le suivi automatique est fait par assets/video-track.js (fichier vidéo, YouTube, Vimeo).
+ */
+function if_video_tracker( $notion_id, $item, $player, $done ) {
+	$key  = isset( $item['key'] ) ? $item['key'] : '';
+	$mode = isset( $item['completion'] ) ? $item['completion'] : 'both';
+	if ( ! $key ) {
+		return $player;
+	}
+	if ( 'button' === $mode ) {
+		return $player . if_complete_button( $notion_id, $key, $done );
+	}
+	wp_enqueue_script( 'cf-video-track' );
+	$threshold = isset( $item['threshold'] ) ? (int) $item['threshold'] : 90;
+	$no_skip   = ! empty( $item['no_skip'] ) && ! $done;
+	$status    = $done ? '✔ ' . __( 'Vidéo vue', 'catalogue-formations' ) : sprintf( __( 'Se valide automatiquement quand la vidéo est vue à %d %%.', 'catalogue-formations' ), $threshold );
+	$out       = '<div class="cf-video-track" data-notion="' . (int) $notion_id . '" data-key="' . esc_attr( $key ) . '" data-nonce="' . esc_attr( wp_create_nonce( 'if_video_' . $notion_id . '_' . $key ) ) . '" data-threshold="' . $threshold . '" data-noskip="' . ( $no_skip ? 1 : 0 ) . '" data-done="' . ( $done ? 1 : 0 ) . '">';
+	$out      .= $player;
+	$out      .= '<p class="cf-video-status' . ( $done ? ' is-done' : '' ) . '" aria-live="polite">' . esc_html( $status ) . ( $no_skip ? ' <small>' . esc_html__( '(avance rapide désactivée)', 'catalogue-formations' ) . '</small>' : '' ) . '</p>';
+	$out      .= '</div>';
+	if ( 'both' === $mode ) {
+		$out .= if_complete_button( $notion_id, $key, $done );
+	}
+	return $out;
+}
+
 function if_render_video( $url ) {
 	if ( ! $url ) {
 		return '<p class="if-empty-item">' . esc_html__( 'Aucune vidéo choisie.', 'catalogue-formations' ) . '</p>';
@@ -197,8 +226,8 @@ function if_render_item( $notion_id, $type, $item, $inner_html = null, $wrapper 
 	}
 
 	if ( 'video' === $type ) {
-		echo null !== $inner_html && '' !== trim( $inner_html ) ? $inner_html : if_render_video( isset( $item['url'] ) ? $item['url'] : '' ); // phpcs:ignore
-		echo $key ? if_complete_button( $notion_id, $key, $done ) : ''; // phpcs:ignore
+		$player = null !== $inner_html && '' !== trim( $inner_html ) ? $inner_html : if_render_video( isset( $item['url'] ) ? $item['url'] : '' );
+		echo if_video_tracker( $notion_id, $item, $player, $done ); // phpcs:ignore
 	} elseif ( 'pdf' === $type ) {
 		if ( ! empty( $item['attachment_id'] ) && null !== $inner_html && '' !== trim( $inner_html ) ) {
 			// Bloc Fichier de WordPress : ses liens pointent vers l'adresse protégée.
