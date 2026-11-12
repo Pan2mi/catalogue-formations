@@ -80,6 +80,9 @@ function if_get_items( $notion_id, $with_hidden = false ) {
 				'hidden' => ! empty( $it['hidden'] ),
 				'rules'  => isset( $it['rules'] ) ? $it['rules'] : array(),
 			);
+			if ( 'exercise' === $it['type'] ) {
+				$out[ count( $out ) - 1 ]['validation'] = isset( $it['validation'] ) ? $it['validation'] : 'teacher';
+			}
 		}
 		return $out;
 	}

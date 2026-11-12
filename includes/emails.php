@@ -91,12 +91,16 @@ function if_mail_corrected( $sub_id ) {
 		return;
 	}
 	$ex   = if_find_item( $s->notion_id, $s->exercise_key, 'exercise' );
-	$body = sprintf(
-		"Bonjour %s,\n\nVotre exercice « %s » (notion « %s ») a été corrigé.\n\nVoir la correction : %s",
+	$state = 'redo' === $s->status ? 'est à refaire' : 'a été validé';
+	$grade = null !== $s->grade && null !== $s->grade_max ? "\nNote : " . if_grade_text( $s->grade, $s->grade_max ) : '';
+	$body  = sprintf(
+		"Bonjour %s,\n\nVotre exercice « %s » (notion « %s ») %s.%s\n\nVoir la correction : %s",
 		$u->display_name,
 		$ex ? $ex['title'] : '',
 		get_the_title( $s->notion_id ),
+		$state,
+		$grade,
 		get_permalink( $s->notion_id ) . '#' . $s->exercise_key
 	);
-	if_mail( $u->user_email, 'Exercice corrigé', $body );
+	if_mail( $u->user_email, 'redo' === $s->status ? 'Exercice à refaire' : 'Exercice validé', $body );
 }

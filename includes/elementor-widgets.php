@@ -61,7 +61,7 @@ abstract class CF_Elementor_Base extends Widget_Base {
 		$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : get_the_ID(); // phpcs:ignore
 		$opts    = array( '' => __( '— Choisir —', 'catalogue-formations' ) );
 		foreach ( $post_id ? (array) if_inline_items( $post_id ) : array() as $it ) {
-			if ( ! $scored_only || in_array( $it['type'], array( 'h5p', 'quiz' ), true ) ) {
+			if ( ! $scored_only || in_array( $it['type'], array( 'h5p', 'quiz' ), true ) || ( 'exercise' === $it['type'] && ! empty( $it['grade_max'] ) ) ) {
 				$opts[ $it['key'] ] = $it['title'];
 			}
 		}
@@ -320,6 +320,10 @@ class CF_Elementor_Exercice extends CF_Elementor_Base {
 		$this->start_controls_section( 'content', array( 'label' => __( 'Exercice', 'catalogue-formations' ) ) );
 		$this->title_controls();
 		$this->add_control( 'instructions', array( 'label' => __( 'Consigne (texte, images, listes…)', 'catalogue-formations' ), 'type' => Controls_Manager::WYSIWYG ) );
+		$this->end_controls_section();
+		$this->start_controls_section( 'validation', array( 'label' => __( 'Validation de l\'exercice', 'catalogue-formations' ) ) );
+		$this->add_control( 'validation', array( 'label' => __( 'Compte comme terminé', 'catalogue-formations' ), 'type' => Controls_Manager::SELECT, 'default' => 'teacher', 'options' => array( 'teacher' => __( 'Quand vous le validez (correction)', 'catalogue-formations' ), 'submit' => __( 'Dès que la réponse est envoyée', 'catalogue-formations' ) ) ) );
+		$this->add_control( 'grade_max', array( 'label' => __( 'Noté sur (0 = pas de note)', 'catalogue-formations' ), 'type' => Controls_Manager::NUMBER, 'min' => 0, 'step' => 0.5, 'default' => 0 ) );
 		$this->end_controls_section();
 
 		$this->start_controls_section( 'style_instr', array( 'label' => __( 'Consigne', 'catalogue-formations' ), 'tab' => Controls_Manager::TAB_STYLE ) );

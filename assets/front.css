@@ -93,3 +93,4 @@
 .cf-quiz__review li.is-ko { border-color: #d63638; }
 .cf-quiz__given { color: #50575e; font-size: .9em; }
 .cf-quiz__expl { background: #f6f7f7; padding: 6px 10px; border-radius: 4px; margin-top: 4px; }
+.if-feedback--redo { border-color: #dba617; background: #fff8e5; }

@@ -97,7 +97,8 @@ Bloc suivi → panneau **Restrictions d'accès** (Elementor : section du même n
 
 ## 5. Suivre et corriger
 - **Formation → Suivi** : tableau apprenants × notions avec le % d'avancement. Clic = détail.
-- **Formation → Corrections** : exercices rendus → **Corriger** → écrire la correction → **Envoyer**.
+- **Formation → Corrections** : exercices rendus → **Corriger** → choisir **Validé** ou **À refaire**, note facultative, écrire la correction → **Envoyer**.
+- Dans le bloc Exercice, panneau **Validation de l'exercice** : terminé quand vous le validez (par défaut) ou dès l'envoi ; **Noté sur** (0 = pas de note).
 
 ## Côté apprenant
 - Créer un compte, parcourir le catalogue, cliquer **Commander cette notion**.

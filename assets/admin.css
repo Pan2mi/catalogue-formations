@@ -19,3 +19,5 @@
 .if-video-line { display:flex; gap:6px; align-items:center; margin-top:2px; }
 .if-video-line .if-video-url { flex:1; }
 .if-hint { background:#f0f6fc; border-left:4px solid #2271b1; padding:8px 12px; }
+.if-decision { margin: 8px 0 12px; }
+.if-decision label { display: block; margin: 4px 0; }

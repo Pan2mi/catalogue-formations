@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 2.10.0
+- **Correction des exercices** : « Validé » ou « À refaire » (l'apprenant peut renvoyer une réponse), note facultative (« Noté sur… » dans le bloc).
+- Réglage par exercice : terminé quand la formatrice valide (par défaut) ou dès l'envoi.
+- Exercice noté : utilisable dans la condition « score minimum ».
+- E-mail à l'apprenant : « Exercice validé » ou « Exercice à refaire », avec la note.
+
 ## 2.9.0
 - **Dupliquer une notion** : lien « Dupliquer » au survol dans Toutes les notions, ou encadré « Dupliquer » dans l'éditeur. Copie en brouillon avec contenus (blocs ou Elementor), niveaux, matières, image et réglages ; sans les inscrits.
 

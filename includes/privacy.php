@@ -118,6 +118,7 @@ function if_privacy_exporter( $email, $page = 1 ) {
 		if ( $r->file_id ) {
 			$row[] = array( 'name' => __( 'Fichier joint', 'catalogue-formations' ), 'value' => if_answer_file_name( $r->file_id ) );
 		}
+		$row[] = array( 'name' => __( 'État', 'catalogue-formations' ), 'value' => if_submission_label( $r ) );
 		if ( $r->feedback ) {
 			$row[] = array( 'name' => __( 'Correction', 'catalogue-formations' ), 'value' => wp_strip_all_tags( (string) $r->feedback ) );
 		}

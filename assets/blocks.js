@@ -101,7 +101,7 @@
 			store.getClientIdsWithDescendants().forEach(function (id) {
 				var b = store.getBlock(id);
 				if (id !== clientId && b && ICONS[b.name] && b.attributes.key) {
-					out.push({ key: b.attributes.key, label: ICONS[b.name] + ' ' + (b.attributes.title || 'Sans titre'), scored: b.name === 'catalogue-formations/h5p' || b.name === 'catalogue-formations/quiz' });
+					out.push({ key: b.attributes.key, label: ICONS[b.name] + ' ' + (b.attributes.title || 'Sans titre'), scored: b.name === 'catalogue-formations/h5p' || b.name === 'catalogue-formations/quiz' || (b.name === 'catalogue-formations/exercice' && b.attributes.gradeMax > 0) });
 				}
 			});
 			return out;
@@ -140,7 +140,7 @@
 				fields = el(wp.components.SelectControl, { label: 'Contenu à terminer', value: c.key || '', options: itemOpts(false), onChange: function (v) { setCond(i, { key: v }); }, __nextHasNoMarginBottom: true });
 			} else if (c.type === 'score') {
 				fields = el(Fragment, null,
-					el(wp.components.SelectControl, { label: 'Contenu noté', help: itemOpts(true).length < 2 ? 'Ajoutez d\'abord un quiz ou une activité H5P dans la page.' : '', value: c.key || '', options: itemOpts(true), onChange: function (v) { setCond(i, { key: v }); }, __nextHasNoMarginBottom: true }),
+					el(wp.components.SelectControl, { label: 'Contenu noté', help: itemOpts(true).length < 2 ? 'Ajoutez d\'abord un quiz, une activité H5P ou un exercice noté.' : '', value: c.key || '', options: itemOpts(true), onChange: function (v) { setCond(i, { key: v }); }, __nextHasNoMarginBottom: true }),
 					el(wp.components.RangeControl, { label: 'Score minimum (%)', min: 0, max: 100, step: 5, value: c.min === undefined ? 50 : c.min, onChange: function (v) { setCond(i, { min: v || 0 }); } })
 				);
 			} else if (c.type === 'date') {
@@ -303,7 +303,7 @@
 		icon: 'edit-page',
 		keywords: ['exercice', 'devoir', 'question', 'formation'],
 		supports: SUPPORTS,
-		attributes: attrs({ instructions: { type: 'string', default: '' } }),
+		attributes: attrs({ instructions: { type: 'string', default: '' }, validation: { type: 'string', default: 'teacher' }, gradeMax: { type: 'number', default: 0 } }),
 		edit: function (props) {
 			useUniqueKey(props, 'e');
 			var a = props.attributes;
@@ -315,13 +315,21 @@
 				}
 			}, []);
 			var blockProps = be.useBlockProps({ className: 'if-item if-item--exercise cf-tracked' });
+			var foot = '✍️ Zone de réponse (texte + fichier) · ' + (a.validation === 'submit' ? 'terminé dès l\'envoi' : 'terminé quand vous le validez') + (a.gradeMax ? ' · noté sur ' + a.gradeMax : '');
 			return el('div', blockProps,
+				el(be.InspectorControls, null,
+					el(c.PanelBody, { title: 'Validation de l\'exercice', initialOpen: true },
+						el(c.SelectControl, { label: 'L\'exercice compte comme terminé', value: a.validation, options: [{ value: 'teacher', label: 'Quand vous le validez (correction)' }, { value: 'submit', label: 'Dès que la réponse est envoyée' }], onChange: function (v) { props.setAttributes({ validation: v }); }, __nextHasNoMarginBottom: true }),
+						el(c.TextControl, { type: 'number', min: 0, step: 0.5, label: 'Noté sur (0 = pas de note)', help: 'Ex. 20. La note est facultative lors de la correction.', value: a.gradeMax, onChange: function (v) { props.setAttributes({ gradeMax: parseFloat(v) || 0 }); }, __nextHasNoMarginBottom: true }),
+						el('p', { className: 'cf-help' }, 'À la correction : « Validé » ou « À refaire » (l\'apprenant peut renvoyer une réponse).')
+					)
+				),
 				header(props, '✏️', 'Titre de l\'exercice'),
 				el(InnerBlocks, {
 					template: [['core/paragraph', { placeholder: 'Écrivez la consigne… (vous pouvez ajouter images, listes, tableaux, vidéos)' }]],
 					templateLock: false
 				}),
-				footer('✍️ Zone de réponse de l\'apprenant (texte + fichier joint) ajoutée automatiquement')
+				footer(foot)
 			);
 		},
 		save: function () { return el(InnerBlocks.Content); }

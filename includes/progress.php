@@ -49,7 +49,14 @@ function if_get_submissions( $status = '' ) {
 /** Un élément est-il terminé ? (exercice = réponse envoyée). */
 function if_item_done( $item, $completed, $subs ) {
 	if ( 'exercise' === $item['type'] ) {
-		return isset( $subs[ $item['key'] ] );
+		// « Envoi suffit » : réponse envoyée. Sinon : validé par la formatrice (ligne d'avancement).
+		if ( isset( $item['validation'] ) && 'submit' === $item['validation'] ) {
+			return isset( $subs[ $item['key'] ] );
+		}
+		if ( ! isset( $item['validation'] ) && isset( $subs[ $item['key'] ] ) && in_array( $subs[ $item['key'] ]->status, array( 'corrected', 'validated' ), true ) ) {
+			return true; // anciennes notions (avant la validation).
+		}
+		return in_array( $item['key'], $completed, true );
 	}
 	return in_array( $item['key'], $completed, true );
 }
@@ -199,18 +206,63 @@ function if_handle_submit() {
 }
 
 /** Correction par l'admin. */
-function if_correct_submission( $id, $feedback ) {
+/**
+ * Correction d'une réponse.
+ * $decision : 'validated' (compte comme terminé) ou 'redo' (à refaire). $grade : note ou null.
+ */
+function if_correct_submission( $id, $feedback, $decision = 'validated', $grade = null ) {
 	global $wpdb;
+	$s = if_get_submission( $id );
+	if ( ! $s ) {
+		return;
+	}
+	$item     = if_find_item( $s->notion_id, $s->exercise_key, 'exercise' );
+	$max      = $item && ! empty( $item['grade_max'] ) ? (float) $item['grade_max'] : 0;
+	$decision = 'redo' === $decision ? 'redo' : 'validated';
+	$grade    = $max && null !== $grade && '' !== $grade ? min( $max, max( 0, (float) $grade ) ) : null;
 	$wpdb->update(
 		if_table( 'submissions' ),
 		array(
-			'status'       => 'corrected',
+			'status'       => $decision,
 			'feedback'     => $feedback,
+			'grade'        => $grade,
+			'grade_max'    => null !== $grade ? $max : null,
 			'corrected_at' => if_now(),
 		),
 		array( 'id' => $id )
 	);
+	if ( 'validated' === $decision ) {
+		$t   = if_table( 'progress' );
+		$row = if_progress_row( $s->user_id, $s->notion_id, $s->exercise_key );
+		$data = array( 'completed_at' => if_now(), 'passed' => 1, 'score' => null !== $grade ? (int) round( $grade * 100 ) : null, 'max_score' => null !== $grade ? (int) round( $max * 100 ) : null );
+		if ( $row ) {
+			$wpdb->update( $t, $data, array( 'id' => $row->id ) );
+		} else {
+			$wpdb->insert( $t, $data + array( 'user_id' => $s->user_id, 'notion_id' => $s->notion_id, 'item_key' => $s->exercise_key ) );
+		}
+	}
 	do_action( 'if_exercise_corrected', $id );
+}
+
+/** Texte de l'état d'une réponse. */
+function if_submission_label( $s ) {
+	$grade = null !== $s->grade && null !== $s->grade_max ? ' — ' . if_grade_text( $s->grade, $s->grade_max ) : '';
+	switch ( $s->status ) {
+		case 'validated':
+		case 'corrected':
+			return '✅ ' . __( 'Validé', 'catalogue-formations' ) . $grade;
+		case 'redo':
+			return '🔁 ' . __( 'À refaire', 'catalogue-formations' ) . $grade;
+		default:
+			return '⏳ ' . __( 'En attente de correction', 'catalogue-formations' );
+	}
+}
+
+function if_grade_text( $grade, $max ) {
+	$f = function ( $n ) {
+		return rtrim( rtrim( number_format( (float) $n, 2, ',', '' ), '0' ), ',' );
+	};
+	return $f( $grade ) . ' / ' . $f( $max );
 }
 
 /** URL protégée pour ouvrir un PDF. */

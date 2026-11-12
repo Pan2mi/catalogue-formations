@@ -279,8 +279,8 @@ function if_render_item( $notion_id, $type, $item, $inner_html = null, $wrapper 
 			if ( $sub->file_id ) {
 				echo if_answer_file_link( $sub ); // phpcs:ignore
 			}
-			if ( 'corrected' === $sub->status ) {
-				echo '<div class="if-feedback"><p><strong>✅ ' . esc_html__( 'Correction', 'catalogue-formations' ) . '</strong></p>' . wp_kses_post( wpautop( $sub->feedback ) ) . '</div>';
+			if ( 'submitted' !== $sub->status ) {
+				echo '<div class="if-feedback' . ( 'redo' === $sub->status ? ' if-feedback--redo' : '' ) . '"><p><strong>' . esc_html( if_submission_label( $sub ) ) . '</strong></p>' . wp_kses_post( wpautop( $sub->feedback ) ) . ( 'redo' === $sub->status ? '<p><em>' . esc_html__( 'Vous pouvez envoyer une nouvelle réponse ci-dessous.', 'catalogue-formations' ) . '</em></p>' : '' ) . '</div>';
 			} else {
 				echo '<p class="if-badge if-badge--pending">' . esc_html__( 'En attente de correction', 'catalogue-formations' ) . '</p>';
 			}
@@ -288,7 +288,7 @@ function if_render_item( $notion_id, $type, $item, $inner_html = null, $wrapper 
 		}
 		if ( $key ) {
 			?>
-			<details class="if-submit" <?php echo $sub ? '' : 'open'; ?>>
+			<details class="if-submit" <?php echo ! $sub || 'redo' === $sub->status ? 'open' : ''; ?>>
 				<summary><?php echo $sub ? esc_html__( 'Envoyer une nouvelle réponse', 'catalogue-formations' ) : esc_html__( 'Répondre', 'catalogue-formations' ); ?></summary>
 				<form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 					<input type="hidden" name="action" value="if_submit">
@@ -612,7 +612,7 @@ function if_sc_dashboard() {
 		echo '<h2>' . esc_html__( 'Mes exercices', 'catalogue-formations' ) . '</h2><ul class="if-list">';
 		foreach ( $subs as $s ) {
 			$ex    = if_find_item( $s->notion_id, $s->exercise_key, 'exercise' );
-			$label = 'corrected' === $s->status ? '✅ ' . __( 'Corrigé', 'catalogue-formations' ) : '⏳ ' . __( 'En attente de correction', 'catalogue-formations' );
+			$label = if_submission_label( $s );
 			echo '<li><a href="' . esc_url( get_permalink( $s->notion_id ) . '#' . $s->exercise_key ) . '">' . esc_html( get_the_title( $s->notion_id ) . ' — ' . ( $ex ? $ex['title'] : '' ) ) . '</a> · ' . esc_html( $label ) . '</li>';
 		}
 		echo '</ul>';

@@ -120,6 +120,8 @@ function if_item_from_attrs( $type, $a ) {
 		$item['pass']       = isset( $a['passScore'] ) ? min( 100, max( 0, (int) $a['passScore'] ) ) : 0;
 	} else {
 		$item['instructions'] = isset( $a['instructions'] ) ? wp_kses_post( $a['instructions'] ) : '';
+		$item['validation']   = isset( $a['validation'] ) && 'submit' === $a['validation'] ? 'submit' : 'teacher';
+		$item['grade_max']    = isset( $a['gradeMax'] ) ? max( 0, (float) $a['gradeMax'] ) : 0;
 	}
 	return $item;
 }
@@ -173,6 +175,8 @@ function if_item_from_elementor_settings( $type, $id, $s ) {
 		$attrs['passScore'] = isset( $s['pass'] ) ? $s['pass'] : 0;
 	} else {
 		$attrs['instructions'] = isset( $s['instructions'] ) ? $s['instructions'] : '';
+		$attrs['validation']   = isset( $s['validation'] ) ? $s['validation'] : 'teacher';
+		$attrs['gradeMax']     = isset( $s['grade_max'] ) ? $s['grade_max'] : 0;
 	}
 	return if_item_from_attrs( $type, $attrs );
 }
@@ -314,7 +318,11 @@ function if_register_blocks() {
 	register_block_type(
 		'catalogue-formations/exercice',
 		$common + array(
-			'attributes'      => $base_attrs + array( 'instructions' => array( 'type' => 'string', 'default' => '' ) ),
+			'attributes'      => $base_attrs + array(
+				'instructions' => array( 'type' => 'string', 'default' => '' ),
+				'validation'   => array( 'type' => 'string', 'default' => 'teacher' ),
+				'gradeMax'     => array( 'type' => 'number', 'default' => 0 ),
+			),
 			'render_callback' => $render( 'exercise' ),
 		)
 	);

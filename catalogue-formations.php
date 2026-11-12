@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Catalogue de formations
  * Description:       Plateforme de formation : catalogue de notions (niveaux / matières), demandes d'accès validées par l'administrateur avec dates, suivi de l'avancement, exercices à corriger et alertes e-mail.
- * Version:           2.9.0
+ * Version:           2.10.0
  * Update URI:        https://github.com/Pan2mi/catalogue-formations
  * Requires at least: 6.0
  * Requires PHP:      7.4
@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'IF_VERSION', '2.9.0' );
-define( 'IF_DB_VERSION', '2' );
+define( 'IF_VERSION', '2.10.0' );
+define( 'IF_DB_VERSION', '3' );
 define( 'IF_FILE', __FILE__ );
 define( 'IF_DIR', plugin_dir_path( __FILE__ ) );
 define( 'IF_URL', plugin_dir_url( __FILE__ ) );

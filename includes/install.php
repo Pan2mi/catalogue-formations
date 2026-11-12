@@ -75,6 +75,8 @@ function if_create_tables() {
 		file_id bigint(20) unsigned NULL,
 		status varchar(20) NOT NULL DEFAULT 'submitted',
 		feedback longtext NULL,
+		grade decimal(6,2) NULL,
+		grade_max decimal(6,2) NULL,
 		submitted_at datetime NOT NULL,
 		corrected_at datetime NULL,
 		PRIMARY KEY  (id),

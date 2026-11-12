@@ -305,7 +305,7 @@ function if_page_progress() {
 			}
 			if ( 'exercise' === $it['type'] && isset( $subs[ $it['key'] ] ) ) {
 				$s    = $subs[ $it['key'] ];
-				$etat = 'corrected' === $s->status ? '✅ ' . __( 'Corrigé', 'catalogue-formations' ) : '⏳ <a href="' . esc_url( if_admin_url( 'if-corrections', array( 'submission' => $s->id ) ) ) . '">' . __( 'À corriger', 'catalogue-formations' ) . '</a>';
+				$etat = 'submitted' !== $s->status ? esc_html( if_submission_label( $s ) ) : '⏳ <a href="' . esc_url( if_admin_url( 'if-corrections', array( 'submission' => $s->id ) ) ) . '">' . __( 'À corriger', 'catalogue-formations' ) . '</a>';
 			}
 			echo '<tr><td>' . esc_html( if_type_label( $it['type'] ) ) . '</td><td>' . esc_html( $it['title'] ) . '</td><td>' . wp_kses_post( $etat ) . '</td></tr>';
 		}
@@ -374,25 +374,33 @@ function if_page_corrections() {
 			<input type="hidden" name="submission_id" value="<?php echo (int) $s->id; ?>">
 			<?php wp_nonce_field( 'if_admin_correct' ); ?>
 			<h3><?php esc_html_e( 'Ma correction', 'catalogue-formations' ); ?></h3>
+			<?php $dec = 'redo' === $s->status ? 'redo' : 'validated'; ?>
+			<fieldset class="if-decision">
+				<label><input type="radio" name="decision" value="validated" <?php checked( $dec, 'validated' ); ?>> ✅ <strong><?php esc_html_e( 'Validé', 'catalogue-formations' ); ?></strong> — <?php esc_html_e( 'l\'exercice compte comme terminé', 'catalogue-formations' ); ?></label>
+				<label><input type="radio" name="decision" value="redo" <?php checked( $dec, 'redo' ); ?>> 🔁 <strong><?php esc_html_e( 'À refaire', 'catalogue-formations' ); ?></strong> — <?php esc_html_e( 'l\'apprenant peut envoyer une nouvelle réponse', 'catalogue-formations' ); ?></label>
+			</fieldset>
+			<?php if ( $ex && ! empty( $ex['grade_max'] ) ) : ?>
+				<p><label><?php esc_html_e( 'Note', 'catalogue-formations' ); ?> <input type="number" name="grade" step="0.25" min="0" max="<?php echo esc_attr( $ex['grade_max'] ); ?>" value="<?php echo null !== $s->grade ? esc_attr( (float) $s->grade ) : ''; ?>" style="width:90px"> / <?php echo esc_html( rtrim( rtrim( number_format( (float) $ex['grade_max'], 2, ',', '' ), '0' ), ',' ) ); ?></label> <span class="description"><?php esc_html_e( '(facultatif)', 'catalogue-formations' ); ?></span></p>
+			<?php endif; ?>
 			<?php wp_editor( (string) $s->feedback, 'if_feedback', array( 'textarea_name' => 'feedback', 'textarea_rows' => 8, 'media_buttons' => false ) ); ?>
-			<p><button class="button button-primary"><?php echo 'corrected' === $s->status ? esc_html__( 'Mettre à jour la correction', 'catalogue-formations' ) : esc_html__( 'Envoyer la correction', 'catalogue-formations' ); ?></button></p>
+			<p><button class="button button-primary"><?php echo 'submitted' !== $s->status ? esc_html__( 'Mettre à jour la correction', 'catalogue-formations' ) : esc_html__( 'Envoyer la correction', 'catalogue-formations' ); ?></button></p>
 		</form>
 		<?php
 		echo '</div>';
 		return;
 	}
 
-	foreach ( array( 'submitted' => __( 'À corriger', 'catalogue-formations' ), 'corrected' => __( 'Déjà corrigés', 'catalogue-formations' ) ) as $status => $title ) {
-		$list = if_get_submissions( $status );
+	foreach ( array( 'submitted' => __( 'À corriger', 'catalogue-formations' ), 'done' => __( 'Déjà corrigés', 'catalogue-formations' ) ) as $status => $title ) {
+		$list = 'done' === $status ? array_values( array_filter( if_get_submissions(), function ( $x ) { return 'submitted' !== $x->status; } ) ) : if_get_submissions( $status );
 		echo '<h2>' . esc_html( $title ) . ' (' . count( $list ) . ')</h2>';
 		if ( ! $list ) {
 			echo '<p>' . esc_html__( 'Rien pour le moment.', 'catalogue-formations' ) . '</p>';
 			continue;
 		}
-		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Date', 'catalogue-formations' ) . '</th><th>' . esc_html__( 'Apprenant', 'catalogue-formations' ) . '</th><th>' . esc_html__( 'Notion', 'catalogue-formations' ) . '</th><th>' . esc_html__( 'Exercice', 'catalogue-formations' ) . '</th><th></th></tr></thead><tbody>';
+		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Date', 'catalogue-formations' ) . '</th><th>' . esc_html__( 'Apprenant', 'catalogue-formations' ) . '</th><th>' . esc_html__( 'Notion', 'catalogue-formations' ) . '</th><th>' . esc_html__( 'Exercice', 'catalogue-formations' ) . '</th><th>' . esc_html__( 'État', 'catalogue-formations' ) . '</th><th></th></tr></thead><tbody>';
 		foreach ( $list as $s ) {
 			$ex = if_find_item( $s->notion_id, $s->exercise_key, 'exercise' );
-			echo '<tr><td>' . esc_html( mysql2date( get_option( 'date_format' ), $s->submitted_at ) ) . '</td><td>' . esc_html( if_user_name( $s->user_id ) ) . '</td><td>' . esc_html( get_the_title( $s->notion_id ) ) . '</td><td>' . esc_html( $ex ? $ex['title'] : '—' ) . '</td>';
+			echo '<tr><td>' . esc_html( mysql2date( get_option( 'date_format' ), $s->submitted_at ) ) . '</td><td>' . esc_html( if_user_name( $s->user_id ) ) . '</td><td>' . esc_html( get_the_title( $s->notion_id ) ) . '</td><td>' . esc_html( $ex ? $ex['title'] : '—' ) . '</td><td>' . esc_html( if_submission_label( $s ) ) . '</td>';
 			echo '<td><a class="button" href="' . esc_url( if_admin_url( 'if-corrections', array( 'submission' => $s->id ) ) ) . '">' . ( 'submitted' === $status ? esc_html__( 'Corriger', 'catalogue-formations' ) : esc_html__( 'Voir', 'catalogue-formations' ) ) . '</a></td></tr>';
 		}
 		echo '</tbody></table>';
@@ -407,7 +415,9 @@ function if_admin_handle_correct() {
 	check_admin_referer( 'if_admin_correct' );
 	$id       = isset( $_POST['submission_id'] ) ? absint( $_POST['submission_id'] ) : 0;
 	$feedback = isset( $_POST['feedback'] ) ? wp_kses_post( wp_unslash( $_POST['feedback'] ) ) : '';
-	if_correct_submission( $id, $feedback );
+	$decision = isset( $_POST['decision'] ) && 'redo' === $_POST['decision'] ? 'redo' : 'validated';
+	$grade    = isset( $_POST['grade'] ) && '' !== $_POST['grade'] ? (float) str_replace( ',', '.', sanitize_text_field( wp_unslash( $_POST['grade'] ) ) ) : null;
+	if_correct_submission( $id, $feedback, $decision, $grade );
 	wp_safe_redirect( if_admin_url( 'if-corrections', array( 'if_done' => 'corrected' ) ) );
 	exit;
 }
