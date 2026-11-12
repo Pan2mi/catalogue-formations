@@ -115,7 +115,7 @@ function if_privacy_exporter( $email, $page = 1 ) {
 			array( 'name' => __( 'Réponse', 'catalogue-formations' ), 'value' => wp_strip_all_tags( (string) $r->answer ) ),
 		);
 		if ( $r->file_id ) {
-			$row[] = array( 'name' => __( 'Fichier joint', 'catalogue-formations' ), 'value' => (string) wp_get_attachment_url( (int) $r->file_id ) );
+			$row[] = array( 'name' => __( 'Fichier joint', 'catalogue-formations' ), 'value' => if_answer_file_name( $r->file_id ) );
 		}
 		if ( $r->feedback ) {
 			$row[] = array( 'name' => __( 'Correction', 'catalogue-formations' ), 'value' => wp_strip_all_tags( (string) $r->feedback ) );

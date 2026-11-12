@@ -107,6 +107,8 @@ Conseil : installer une extension SMTP gratuite (ex. WP Mail SMTP) pour que les 
 - **Outils → Exporter les données personnelles** : l'export contient aussi les données de formation.
 - **Outils → Effacer les données personnelles** : efface aussi les données de formation.
 - **Réglages → Confidentialité** : un texte est proposé pour la politique de confidentialité, à adapter.
+- Fichiers joints aux réponses : rangés à part, ouverts seulement par l'apprenant et les formateurs, absents de la médiathèque.
+- **Formation → Réglages → À la suppression de l'extension** : tout garder (par défaut), supprimer les données des apprenants, ou tout supprimer.
 
 ## Limites à connaître
 - **Avancement des vidéos** : compté quand l'apprenant clique « J'ai terminé » (pas de détection automatique du visionnage).

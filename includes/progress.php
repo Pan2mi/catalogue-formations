@@ -157,9 +157,6 @@ function if_handle_submit() {
 	$file_id = 0;
 
 	if ( ! empty( $_FILES['answer_file']['name'] ) ) {
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/media.php';
-		require_once ABSPATH . 'wp-admin/includes/image.php';
 		$allowed = array(
 			'pdf'  => 'application/pdf',
 			'doc'  => 'application/msword',
@@ -169,7 +166,7 @@ function if_handle_submit() {
 			'png'  => 'image/png',
 			'txt'  => 'text/plain',
 		);
-		$res = media_handle_upload( 'answer_file', 0, array(), array( 'test_form' => false, 'mimes' => $allowed ) );
+		$res = if_answer_store_upload( 'answer_file', $allowed ); // dossier protégé, hors médiathèque.
 		if ( is_wp_error( $res ) ) {
 			wp_safe_redirect( add_query_arg( 'if_msg', 'upload', $back ) . '#' . $key );
 			exit;

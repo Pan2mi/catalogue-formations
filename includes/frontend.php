@@ -273,7 +273,7 @@ function if_render_item( $notion_id, $type, $item, $inner_html = null, $wrapper 
 				echo wp_kses_post( wpautop( $sub->answer ) );
 			}
 			if ( $sub->file_id ) {
-				echo '<p>📎 <a href="' . esc_url( wp_get_attachment_url( $sub->file_id ) ) . '" target="_blank" rel="noopener">' . esc_html( basename( (string) get_attached_file( $sub->file_id ) ) ) . '</a></p>';
+				echo if_answer_file_link( $sub ); // phpcs:ignore
 			}
 			if ( 'corrected' === $sub->status ) {
 				echo '<div class="if-feedback"><p><strong>✅ ' . esc_html__( 'Correction', 'catalogue-formations' ) . '</strong></p>' . wp_kses_post( wpautop( $sub->feedback ) ) . '</div>';

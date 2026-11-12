@@ -365,7 +365,7 @@ function if_page_corrections() {
 		}
 		echo '<div class="if-card-admin"><h3>' . esc_html__( 'Réponse', 'catalogue-formations' ) . '</h3>' . wp_kses_post( wpautop( $s->answer ) );
 		if ( $s->file_id ) {
-			echo '<p>📎 <a href="' . esc_url( wp_get_attachment_url( $s->file_id ) ) . '" target="_blank" rel="noopener">' . esc_html( basename( (string) get_attached_file( $s->file_id ) ) ) . '</a></p>';
+			echo if_answer_file_link( $s ); // phpcs:ignore
 		}
 		echo '</div>';
 		?>
@@ -468,6 +468,16 @@ function if_page_settings() {
 						<label style="display:block;margin:4px 0"><input type="radio" name="if_sections" value="matiere" <?php checked( $cs['sections'], 'matiere' ); ?>> <?php esc_html_e( 'Par matière, puis par niveau', 'catalogue-formations' ); ?></label>
 					</td>
 				</tr>
+				<?php $un = get_option( 'if_uninstall', 'keep' ); ?>
+				<tr>
+					<th><?php esc_html_e( 'À la suppression de l\'extension', 'catalogue-formations' ); ?></th>
+					<td>
+						<label style="display:block;margin:4px 0"><input type="radio" name="if_uninstall" value="keep" <?php checked( $un, 'keep' ); ?>> <?php esc_html_e( 'Tout garder (conseillé si vous réinstallez plus tard)', 'catalogue-formations' ); ?></label>
+						<label style="display:block;margin:4px 0"><input type="radio" name="if_uninstall" value="data" <?php checked( $un, 'data' ); ?>> <?php esc_html_e( 'Supprimer les données des apprenants (accès, avancement, réponses et fichiers) et les réglages', 'catalogue-formations' ); ?></label>
+						<label style="display:block;margin:4px 0"><input type="radio" name="if_uninstall" value="all" <?php checked( $un, 'all' ); ?>> <?php esc_html_e( 'Tout supprimer, y compris les notions, niveaux, matières et groupes', 'catalogue-formations' ); ?></label>
+						<p class="description"><?php esc_html_e( 'S\'applique seulement quand l\'extension est supprimée (Extensions → Supprimer), pas quand elle est désactivée ou mise à jour. Irréversible.', 'catalogue-formations' ); ?></p>
+					</td>
+				</tr>
 			</table>
 			<?php submit_button( __( 'Enregistrer', 'catalogue-formations' ) ); ?>
 		</form>
@@ -489,6 +499,7 @@ function if_admin_handle_settings() {
 	}
 	update_option( 'if_filters', $filters );
 	update_option( 'if_sections', isset( $_POST['if_sections'] ) && 'matiere' === $_POST['if_sections'] ? 'matiere' : 'niveau' );
+	update_option( 'if_uninstall', isset( $_POST['if_uninstall'] ) && in_array( $_POST['if_uninstall'], array( 'data', 'all' ), true ) ? sanitize_key( $_POST['if_uninstall'] ) : 'keep' );
 	wp_safe_redirect( if_admin_url( 'if-settings', array( 'if_done' => 'saved' ) ) );
 	exit;
 }

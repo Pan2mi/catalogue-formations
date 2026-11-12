@@ -1,5 +1,9 @@
 # Journal des versions
 
+## 2.7.0
+- Fichiers joints aux réponses protégés : dossier à part, nom aléatoire, ouverts seulement par l'apprenant et les formateurs, absents de la médiathèque. Les anciens fichiers sont déplacés automatiquement.
+- Réglages → « À la suppression de l'extension » : tout garder (par défaut), supprimer les données des apprenants et les réglages, ou tout supprimer (y compris notions, niveaux, matières).
+
 ## 2.6.0
 - Données personnelles (RGPD) :
   - compte supprimé → accès, avancement, réponses et fichiers joints supprimés ;
