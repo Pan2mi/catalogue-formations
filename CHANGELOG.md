@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 2.5.1
+- Avancement : un contenu caché par ses conditions ne compte pas tant qu'il est caché (un contenu bloqué avec cadenas compte toujours).
+
 ## 2.5.0
 - **Restrictions d'accès** sur chaque contenu suivi (comme Moodle) : contenu terminé, score minimum, date (du… / jusqu'au…), délai après le début de l'accès.
 - Combinaison : toutes les conditions ou au moins une ; si non rempli : cadenas + ce qu'il faut faire, ou caché.

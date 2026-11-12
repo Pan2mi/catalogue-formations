@@ -63,12 +63,20 @@ function if_progress( $user_id, $notion_id ) {
 	$completed = if_completed_keys( $user_id, $notion_id );
 	$subs      = if_user_submissions( $user_id, $notion_id );
 	$done      = 0;
+	$total     = 0;
 	foreach ( $items as $it ) {
+		// Contenu caché par ses conditions (ex. date pas encore arrivée) : hors avancement tant qu'il est caché.
+		if ( ! empty( $it['rules']['conds'] ) && 'hidden' === $it['rules']['display'] && function_exists( 'if_item_restriction' ) ) {
+			$r = if_item_restriction( $user_id, $notion_id, $it['key'] );
+			if ( $r && 'hidden' === $r['display'] ) {
+				continue;
+			}
+		}
+		$total++;
 		if ( if_item_done( $it, $completed, $subs ) ) {
 			$done++;
 		}
 	}
-	$total = count( $items );
 	return array(
 		'done'    => $done,
 		'total'   => $total,
