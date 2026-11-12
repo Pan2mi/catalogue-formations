@@ -16,3 +16,12 @@
 .cf-h5p-card { display: grid; gap: 2px; padding: 12px 14px; border-radius: 6px; background: #f6f0ff; border: 1px solid #d9c7f5; }
 .cf-h5p-card span { color: #50575e; font-size: 12px; }
 .cf-h5p-card em { color: #50575e; font-size: 12px; }
+
+/* Restrictions d'accès */
+.cf-cond { border: 1px solid #dcdcde; border-radius: 4px; padding: 8px 10px; margin: 0 0 10px; background: #f6f7f7; }
+.cf-cond__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.cf-cond .components-base-control { margin-bottom: 8px; }
+.cf-cond-add { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.cf-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
+.cf-badge { font-size: 12px; background: #fff8e5; border: 1px solid #dba617; border-radius: 10px; padding: 2px 8px; }
+.cf-badge--hidden { background: #f0f0f1; border-color: #8c8f94; }

@@ -56,8 +56,60 @@ abstract class CF_Elementor_Base extends Widget_Base {
 		);
 	}
 
+	/** Contenus suivis de la notion (pour les conditions), tels qu'enregistrés. */
+	protected function other_items( $scored_only = false ) {
+		$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : get_the_ID(); // phpcs:ignore
+		$opts    = array( '' => __( '— Choisir —', 'catalogue-formations' ) );
+		foreach ( $post_id ? (array) if_inline_items( $post_id ) : array() as $it ) {
+			if ( ! $scored_only || 'h5p' === $it['type'] ) {
+				$opts[ $it['key'] ] = $it['title'];
+			}
+		}
+		return $opts;
+	}
+
+	/** Onglet « Contenu » : restrictions d'accès (comme Moodle). */
+	protected function restriction_controls() {
+		$this->start_controls_section( 'restrictions', array( 'label' => __( 'Restrictions d\'accès', 'catalogue-formations' ) ) );
+		$this->add_control( 'hidden', array( 'label' => __( 'Masqué aux apprenants', 'catalogue-formations' ), 'description' => __( 'Invisible pour les apprenants et hors avancement (pour préparer le contenu).', 'catalogue-formations' ), 'type' => Controls_Manager::SWITCHER, 'return_value' => 'yes' ) );
+		$rep = new \Elementor\Repeater();
+		$rep->add_control(
+			'type',
+			array(
+				'label'   => __( 'Condition', 'catalogue-formations' ),
+				'type'    => Controls_Manager::SELECT,
+				'default' => 'done',
+				'options' => array(
+					'done'  => __( 'Contenu terminé', 'catalogue-formations' ),
+					'score' => __( 'Score minimum', 'catalogue-formations' ),
+					'date'  => __( 'Date', 'catalogue-formations' ),
+					'delay' => __( 'Délai après le début de l\'accès', 'catalogue-formations' ),
+				),
+			)
+		);
+		$rep->add_control( 'item', array( 'label' => __( 'Contenu', 'catalogue-formations' ), 'description' => __( 'Enregistrez la page pour voir les contenus ajoutés récemment.', 'catalogue-formations' ), 'type' => Controls_Manager::SELECT, 'options' => $this->other_items(), 'condition' => array( 'type' => array( 'done', 'score' ) ) ) );
+		$rep->add_control( 'min', array( 'label' => __( 'Score minimum (%)', 'catalogue-formations' ), 'type' => Controls_Manager::NUMBER, 'min' => 0, 'max' => 100, 'default' => 50, 'condition' => array( 'type' => 'score' ) ) );
+		$rep->add_control( 'from', array( 'label' => __( 'À partir du', 'catalogue-formations' ), 'type' => Controls_Manager::DATE_TIME, 'picker_options' => array( 'enableTime' => false ), 'condition' => array( 'type' => 'date' ) ) );
+		$rep->add_control( 'until', array( 'label' => __( 'Jusqu\'au', 'catalogue-formations' ), 'type' => Controls_Manager::DATE_TIME, 'picker_options' => array( 'enableTime' => false ), 'condition' => array( 'type' => 'date' ) ) );
+		$rep->add_control( 'days', array( 'label' => __( 'Nombre de jours', 'catalogue-formations' ), 'type' => Controls_Manager::NUMBER, 'min' => 0, 'default' => 7, 'condition' => array( 'type' => 'delay' ) ) );
+		$this->add_control(
+			'conds',
+			array(
+				'label'       => __( 'Conditions d\'accès', 'catalogue-formations' ),
+				'type'        => Controls_Manager::REPEATER,
+				'fields'      => $rep->get_controls(),
+				'title_field' => '{{{ ({ done: "✔ Contenu terminé", score: "🎯 Score minimum", date: "📅 Date", delay: "⏳ Délai" })[ type ] }}}',
+				'default'     => array(),
+			)
+		);
+		$this->add_control( 'cond_match', array( 'label' => __( 'Il faut', 'catalogue-formations' ), 'type' => Controls_Manager::SELECT, 'default' => 'all', 'options' => array( 'all' => __( 'toutes les conditions', 'catalogue-formations' ), 'any' => __( 'au moins une condition', 'catalogue-formations' ) ) ) );
+		$this->add_control( 'cond_display', array( 'label' => __( 'Tant que ce n\'est pas rempli', 'catalogue-formations' ), 'type' => Controls_Manager::SELECT, 'default' => 'locked', 'options' => array( 'locked' => __( 'Cadenas + ce qu\'il faut faire', 'catalogue-formations' ), 'hidden' => __( 'Cacher complètement', 'catalogue-formations' ) ) ) );
+		$this->end_controls_section();
+	}
+
 	/** Onglet « Style » commun : alignement, titre, bouton. */
 	protected function style_controls() {
+		$this->restriction_controls();
 		$this->start_controls_section( 'style_box', array( 'label' => __( 'Disposition', 'catalogue-formations' ), 'tab' => Controls_Manager::TAB_STYLE ) );
 		$this->add_responsive_control(
 			'align',

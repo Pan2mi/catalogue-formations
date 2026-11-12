@@ -130,7 +130,7 @@ function if_h5p_ajax_result() {
 	check_ajax_referer( 'if_h5p_' . $notion_id . '_' . $key, 'nonce' );
 	$user = get_current_user_id();
 	$item = if_find_item( $notion_id, $key, 'h5p' );
-	if ( ! $user || ! $item || ! if_user_can_view( $user, $notion_id ) || if_item_blocker( $user, $notion_id, $key ) ) {
+	if ( ! $user || ! $item || ! if_user_can_view( $user, $notion_id ) || if_item_locked( $user, $notion_id, $key ) ) {
 		wp_send_json_error( array( 'message' => 'noaccess' ), 403 );
 	}
 	$content = isset( $_POST['content_id'] ) ? absint( $_POST['content_id'] ) : 0;

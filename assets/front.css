@@ -74,3 +74,4 @@
 .if-item--sequence { opacity: .85; }
 .if-item--sequence p a { font-weight: 600; }
 .cf-next { margin-left: 6px; }
+.cf-staff-note { background: #fff8e5; border-left: 4px solid #dba617; padding: 6px 10px; font-size: .85em; margin: 0 0 10px; }

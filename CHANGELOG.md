@@ -1,5 +1,12 @@
 # Journal des versions
 
+## 2.5.0
+- **Restrictions d'accès** sur chaque contenu suivi (comme Moodle) : contenu terminé, score minimum, date (du… / jusqu'au…), délai après le début de l'accès.
+- Combinaison : toutes les conditions ou au moins une ; si non rempli : cadenas + ce qu'il faut faire, ou caché.
+- **Masqué aux apprenants** : préparer un contenu sans qu'il soit visible (hors avancement).
+- Les formateurs voient tout, avec un bandeau rappelant les conditions.
+- Bloc Gutenberg (panneau « Restrictions d'accès ») et widget Elementor.
+
 ## 2.4.0
 - **Parcours dans l'ordre** (encadré « Parcours » de la notion) : chaque contenu suivi se débloque quand le précédent est terminé.
 - Exception par contenu : « Toujours accessible » (bloc Gutenberg et widget Elementor).

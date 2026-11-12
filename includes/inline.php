@@ -98,7 +98,9 @@ function if_item_from_attrs( $type, $a ) {
 	if ( '' === $item['title'] ) {
 		$item['title'] = if_type_label( $type );
 	}
-	$item['free'] = ! empty( $a['free'] );
+	$item['free']   = ! empty( $a['free'] );
+	$item['hidden'] = ! empty( $a['hidden'] );
+	$item['rules']  = if_sanitize_rules( isset( $a['rules'] ) ? $a['rules'] : array() );
 	if ( 'video' === $type ) {
 		$item['url']        = isset( $a['url'] ) ? esc_url_raw( $a['url'] ) : '';
 		$item['completion'] = isset( $a['completion'] ) && in_array( $a['completion'], array( 'auto', 'both', 'button' ), true ) ? $a['completion'] : 'both';
@@ -140,7 +142,9 @@ function if_item_from_elementor_settings( $type, $id, $s ) {
 	$attrs = array(
 		'key'   => 'el_' . $id,
 		'title' => isset( $s['title'] ) ? $s['title'] : '',
-		'free'  => isset( $s['free'] ) && 'yes' === $s['free'],
+		'free'   => isset( $s['free'] ) && 'yes' === $s['free'],
+		'hidden' => isset( $s['hidden'] ) && 'yes' === $s['hidden'],
+		'rules'  => if_rules_from_elementor( $s ),
 	);
 	if ( 'video' === $type ) {
 		$source       = isset( $s['source'] ) ? $s['source'] : 'url';
@@ -256,6 +260,8 @@ function if_register_blocks() {
 		'title'     => array( 'type' => 'string', 'default' => '' ),
 		'showTitle' => array( 'type' => 'boolean', 'default' => true ),
 		'free'      => array( 'type' => 'boolean', 'default' => false ),
+		'hidden'    => array( 'type' => 'boolean', 'default' => false ),
+		'rules'     => array( 'type' => 'object', 'default' => array() ),
 	);
 	$render = function ( $type ) {
 		return function ( $a, $content, $block ) use ( $type ) {

@@ -72,7 +72,9 @@
 		key: { type: 'string', default: '' },
 		title: { type: 'string', default: '' },
 		showTitle: { type: 'boolean', default: true },
-		free: { type: 'boolean', default: false }
+		free: { type: 'boolean', default: false },
+		hidden: { type: 'boolean', default: false },
+		rules: { type: 'object', default: {} }
 	};
 	function attrs(extra) {
 		var o = {};
@@ -88,6 +90,89 @@
 		wp.data.dispatch('core/block-editor').replaceInnerBlocks(clientId, blocks, false);
 	}
 
+	/* ---------- Restrictions d'accès (comme Moodle) ---------- */
+	var ICONS = { 'catalogue-formations/video': '🎬', 'catalogue-formations/document': '📄', 'catalogue-formations/exercice': '✏️', 'catalogue-formations/h5p': '🧩' };
+
+	/** Autres contenus suivis de la page (pour « tel contenu terminé » / « score minimum »). */
+	function useOtherItems(clientId) {
+		return useSelect(function (select) {
+			var store = select('core/block-editor');
+			var out = [];
+			store.getClientIdsWithDescendants().forEach(function (id) {
+				var b = store.getBlock(id);
+				if (id !== clientId && b && ICONS[b.name] && b.attributes.key) {
+					out.push({ key: b.attributes.key, label: ICONS[b.name] + ' ' + (b.attributes.title || 'Sans titre'), scored: b.name === 'catalogue-formations/h5p' });
+				}
+			});
+			return out;
+		}, [clientId]);
+	}
+
+	function condSummary(r) {
+		var n = r && r.conds ? r.conds.length : 0;
+		if (!n) { return ''; }
+		return '🔒 ' + n + ' condition' + (n > 1 ? 's' : '') + ' d\'accès' + (r.display === 'hidden' ? ' (caché sinon)' : '');
+	}
+
+	function RulesPanel(p) {
+		var props = p.props;
+		var a = props.attributes;
+		var r = a.rules && a.rules.conds ? a.rules : { match: 'all', display: 'locked', conds: [] };
+		var others = useOtherItems(props.clientId);
+		function set(patch) {
+			var n = { match: r.match || 'all', display: r.display || 'locked', conds: r.conds.slice() };
+			Object.keys(patch).forEach(function (k) { n[k] = patch[k]; });
+			props.setAttributes({ rules: n });
+		}
+		function setCond(i, patch) {
+			var conds = r.conds.map(function (c, j) { if (j !== i) { return c; } var x = {}; Object.keys(c).forEach(function (k) { x[k] = c[k]; }); Object.keys(patch).forEach(function (k) { x[k] = patch[k]; }); return x; });
+			set({ conds: conds });
+		}
+		function add(c) { set({ conds: r.conds.concat([c]) }); }
+		function remove(i) { set({ conds: r.conds.filter(function (c, j) { return j !== i; }) }); }
+		var itemOpts = function (scoredOnly) {
+			var list = others.filter(function (o) { return !scoredOnly || o.scored; });
+			return [{ value: '', label: '— Choisir un contenu —' }].concat(list.map(function (o) { return { value: o.key, label: o.label }; }));
+		};
+		var rows = r.conds.map(function (c, i) {
+			var fields;
+			if (c.type === 'done') {
+				fields = el(wp.components.SelectControl, { label: 'Contenu à terminer', value: c.key || '', options: itemOpts(false), onChange: function (v) { setCond(i, { key: v }); }, __nextHasNoMarginBottom: true });
+			} else if (c.type === 'score') {
+				fields = el(Fragment, null,
+					el(wp.components.SelectControl, { label: 'Contenu noté', help: itemOpts(true).length < 2 ? 'Ajoutez d\'abord une activité H5P dans la page.' : '', value: c.key || '', options: itemOpts(true), onChange: function (v) { setCond(i, { key: v }); }, __nextHasNoMarginBottom: true }),
+					el(wp.components.RangeControl, { label: 'Score minimum (%)', min: 0, max: 100, step: 5, value: c.min === undefined ? 50 : c.min, onChange: function (v) { setCond(i, { min: v || 0 }); } })
+				);
+			} else if (c.type === 'date') {
+				fields = el(Fragment, null,
+					el(wp.components.TextControl, { type: 'date', label: 'À partir du (facultatif)', value: c.from || '', onChange: function (v) { setCond(i, { from: v }); }, __nextHasNoMarginBottom: true }),
+					el(wp.components.TextControl, { type: 'date', label: 'Jusqu\'au (facultatif)', value: c.until || '', onChange: function (v) { setCond(i, { until: v }); }, __nextHasNoMarginBottom: true })
+				);
+			} else {
+				fields = el(wp.components.TextControl, { type: 'number', min: 0, label: 'Jours après le début de l\'accès de l\'apprenant', value: c.days === undefined ? 7 : c.days, onChange: function (v) { setCond(i, { days: parseInt(v, 10) || 0 }); }, __nextHasNoMarginBottom: true });
+			}
+			var names = { done: '✔ Contenu terminé', score: '🎯 Score minimum', date: '📅 Date', delay: '⏳ Délai' };
+			return el('div', { key: i, className: 'cf-cond' },
+				el('div', { className: 'cf-cond__head' }, el('strong', null, names[c.type]), el(wp.components.Button, { isDestructive: true, variant: 'link', onClick: function () { remove(i); } }, 'Retirer')),
+				fields
+			);
+		});
+		return el(c.PanelBody, { title: 'Restrictions d\'accès', initialOpen: !!(a.hidden || r.conds.length) },
+			el(c.ToggleControl, { label: 'Masqué aux apprenants', help: 'Pour préparer ce contenu tranquillement : invisible pour les apprenants et hors avancement.', checked: !!a.hidden, onChange: function (v) { props.setAttributes({ hidden: v }); }, __nextHasNoMarginBottom: true }),
+			el('hr'),
+			el('p', { className: 'cf-help' }, 'Conditions pour accéder à ce contenu :'),
+			rows,
+			r.conds.length > 1 ? el(c.SelectControl, { label: 'Il faut', value: r.match || 'all', options: [{ value: 'all', label: 'toutes les conditions' }, { value: 'any', label: 'au moins une condition' }], onChange: function (v) { set({ match: v }); }, __nextHasNoMarginBottom: true }) : null,
+			r.conds.length ? el(c.SelectControl, { label: 'Tant que ce n\'est pas rempli', value: r.display || 'locked', options: [{ value: 'locked', label: 'Afficher avec un cadenas et ce qu\'il faut faire' }, { value: 'hidden', label: 'Cacher complètement' }], onChange: function (v) { set({ display: v }); }, __nextHasNoMarginBottom: true }) : null,
+			el('div', { className: 'cf-cond-add' },
+				el(c.Button, { variant: 'secondary', size: 'small', onClick: function () { add({ type: 'done', key: '' }); } }, '+ Contenu terminé'),
+				el(c.Button, { variant: 'secondary', size: 'small', onClick: function () { add({ type: 'score', key: '', min: 50 }); } }, '+ Score minimum'),
+				el(c.Button, { variant: 'secondary', size: 'small', onClick: function () { add({ type: 'date', from: '', until: '' }); } }, '+ Date'),
+				el(c.Button, { variant: 'secondary', size: 'small', onClick: function () { add({ type: 'delay', days: 7 }); } }, '+ Délai')
+			)
+		);
+	}
+
 	/** En-tête commun : titre modifiable directement + réglage « Afficher le titre ». */
 	function header(props, icon, placeholder) {
 		var a = props.attributes;
@@ -97,8 +182,13 @@
 					el(c.TextControl, { label: 'Titre (aussi utilisé dans le suivi)', value: a.title, onChange: function (v) { props.setAttributes({ title: v }); }, __nextHasNoMarginBottom: true }),
 					el(c.ToggleControl, { label: 'Afficher le titre dans la page', checked: a.showTitle, onChange: function (v) { props.setAttributes({ showTitle: v }); }, __nextHasNoMarginBottom: true }),
 					el(c.ToggleControl, { label: 'Toujours accessible', help: 'Même si la notion est en « Parcours dans l\'ordre » (réglage « Parcours » de la notion). Ce contenu ne bloque pas non plus les suivants.', checked: !!a.free, onChange: function (v) { props.setAttributes({ free: v }); }, __nextHasNoMarginBottom: true })
-				)
+				),
+				el(RulesPanel, { props: props })
 			),
+			(a.hidden || condSummary(a.rules)) ? el('p', { className: 'cf-badges' },
+				a.hidden ? el('span', { className: 'cf-badge cf-badge--hidden' }, '👁 Masqué aux apprenants') : null,
+				condSummary(a.rules) ? el('span', { className: 'cf-badge' }, condSummary(a.rules)) : null
+			) : null,
 			a.showTitle ? el(be.RichText, {
 				tagName: 'h3', className: 'if-item__title', value: a.title, allowedFormats: [],
 				placeholder: icon + ' ' + placeholder,

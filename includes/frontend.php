@@ -217,10 +217,15 @@ function if_render_item( $notion_id, $type, $item, $inner_html = null, $wrapper 
 		return $open . '<h3>🔒 ' . esc_html( $title ) . '</h3><p>' . esc_html( sprintf( __( '%s disponible avec l\'accès à cette notion.', 'catalogue-formations' ), if_type_label( $type ) ) ) . '</p></section>';
 	}
 
-	// Parcours dans l'ordre : bloqué tant que le contenu précédent n'est pas terminé.
-	$blocker = $key ? if_item_blocker( $user, $notion_id, $key ) : null;
-	if ( $blocker ) {
-		return if_render_blocked( $type, $title, $blocker, $wrapper );
+	// Restrictions (parcours dans l'ordre, conditions, masqué) : les formateurs voient tout avec un rappel.
+	$staff_note = '';
+	if ( $key && user_can( $user, 'edit_post', $notion_id ) ) {
+		$staff_note = if_render_staff_note( $notion_id, $key );
+	} elseif ( $key ) {
+		$restriction = if_item_restriction( $user, $notion_id, $key );
+		if ( $restriction ) {
+			return 'hidden' === $restriction['display'] ? '' : if_render_restricted( $type, $title, $restriction, $wrapper );
+		}
 	}
 
 	$completed = if_completed_keys( $user, $notion_id );
@@ -231,6 +236,7 @@ function if_render_item( $notion_id, $type, $item, $inner_html = null, $wrapper 
 	if ( ! isset( $item['show_title'] ) || $item['show_title'] ) {
 		echo '<h3 class="if-item__title">' . esc_html( $icons[ $type ] . ' ' . $title ) . '</h3>';
 	}
+	echo $staff_note; // phpcs:ignore
 
 	if ( 'video' === $type ) {
 		$player = null !== $inner_html && '' !== trim( $inner_html ) ? $inner_html : if_render_video( isset( $item['url'] ) ? $item['url'] : '' );

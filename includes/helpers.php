@@ -60,10 +60,28 @@ function if_get_exercises( $notion_id ) {
  * Tous les éléments qui comptent dans l'avancement (dans l'ordre de la page si possible).
  * Retourne un tableau de [ 'key' => ..., 'type' => video|pdf|exercise, 'title' => ... ].
  */
-function if_get_items( $notion_id ) {
+/**
+ * Éléments suivis d'une notion, dans l'ordre de la page.
+ * Les contenus « Masqués aux apprenants » sont exclus (ils ne comptent pas dans l'avancement), sauf si $with_hidden.
+ */
+function if_get_items( $notion_id, $with_hidden = false ) {
 	$inline = if_inline_items( $notion_id );
 	if ( null !== $inline ) {
-		return array_map( function ( $it ) { return array( 'key' => $it['key'], 'type' => $it['type'], 'title' => $it['title'], 'free' => ! empty( $it['free'] ) ); }, $inline );
+		$out = array();
+		foreach ( $inline as $it ) {
+			if ( ! empty( $it['hidden'] ) && ! $with_hidden ) {
+				continue;
+			}
+			$out[] = array(
+				'key'    => $it['key'],
+				'type'   => $it['type'],
+				'title'  => $it['title'],
+				'free'   => ! empty( $it['free'] ),
+				'hidden' => ! empty( $it['hidden'] ),
+				'rules'  => isset( $it['rules'] ) ? $it['rules'] : array(),
+			);
+		}
+		return $out;
 	}
 	$items = array();
 	foreach ( if_get_videos( $notion_id ) as $v ) {

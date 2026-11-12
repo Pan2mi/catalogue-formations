@@ -59,6 +59,14 @@ Fonctionne avec un fichier vidéo, YouTube et Vimeo.
 - Chaque contenu suivi se débloque quand le précédent est terminé (vidéo vue, PDF « J'ai terminé », exercice envoyé, activité H5P réussie).
 - Exception : sur un contenu, activer **Toujours accessible** (panneau « Élément suivi » du bloc, ou widget Elementor). Il reste ouvert et ne bloque pas les suivants.
 
+## Restrictions d'accès d'un contenu
+Bloc suivi → panneau **Restrictions d'accès** (Elementor : section du même nom) :
+- **Masqué aux apprenants** : pour préparer un contenu petit à petit (invisible, hors avancement).
+- Conditions : **+ Contenu terminé**, **+ Score minimum** (activité H5P), **+ Date** (à partir du / jusqu'au), **+ Délai** (X jours après le début de l'accès de l'apprenant).
+- **Il faut** : toutes les conditions, ou au moins une.
+- **Tant que ce n'est pas rempli** : cadenas + ce qu'il faut faire, ou cacher complètement.
+- En tant que formatrice, vous voyez tout, avec un bandeau jaune qui rappelle les conditions.
+
 ## 4. Gérer les accès — Formation → Accès
 - **Demandes en attente** : choisir les dates « du… au… » puis **Valider** (ou **Refuser**).
 - **Donner un accès directement** : utilisateur + notion + dates.
