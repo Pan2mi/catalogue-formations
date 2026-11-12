@@ -170,7 +170,7 @@ function if_page_access() {
 		</form>
 
 		<h2><?php esc_html_e( '3. Tous les accès', 'catalogue-formations' ); ?></h2>
-		<form method="get" class="if-inline">
+		<form method="get" action="<?php echo esc_url( admin_url( 'edit.php' ) ); ?>" class="if-inline">
 			<input type="hidden" name="post_type" value="if_notion">
 			<input type="hidden" name="page" value="if-access">
 			<select name="notion"><option value="0"><?php esc_html_e( 'Toutes les notions', 'catalogue-formations' ); ?></option><?php echo if_notion_options( $f_notion ); // phpcs:ignore ?></select>

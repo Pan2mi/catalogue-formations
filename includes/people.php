@@ -148,7 +148,7 @@ function if_page_learners() {
 	echo '<h1>' . esc_html__( 'Apprenants', 'catalogue-formations' ) . '</h1>';
 	if_admin_notice();
 	?>
-	<form method="get" class="if-learner-search if-inline">
+	<form method="get" action="<?php echo esc_url( admin_url( 'edit.php' ) ); ?>" class="if-learner-search if-inline">
 		<input type="hidden" name="post_type" value="if_notion">
 		<input type="hidden" name="page" value="if-learners">
 		<input type="search" name="s" value="<?php echo esc_attr( $q ); ?>" placeholder="<?php esc_attr_e( 'Nom, identifiant ou e-mail', 'catalogue-formations' ); ?>">
@@ -246,7 +246,7 @@ function if_page_enrolled() {
 	echo '<div class="wrap if-admin"><h1>' . esc_html__( 'Inscrits à une notion', 'catalogue-formations' ) . '</h1>';
 	if_admin_notice();
 	?>
-	<form method="get" class="if-inline" style="margin:10px 0">
+	<form method="get" action="<?php echo esc_url( admin_url( 'edit.php' ) ); ?>" class="if-inline" style="margin:10px 0">
 		<input type="hidden" name="post_type" value="if_notion">
 		<input type="hidden" name="page" value="if-enrolled">
 		<select name="notion" onchange="this.form.submit()">
