@@ -300,7 +300,7 @@ function if_page_progress() {
 		foreach ( if_get_items( $f_notion ) as $it ) {
 			$done = if_item_done( $it, $completed, $subs );
 			$etat = $done ? '✔ ' . __( 'Terminé', 'catalogue-formations' ) : '○ ' . __( 'Pas encore', 'catalogue-formations' );
-			if ( 'h5p' === $it['type'] && ( $row = if_progress_row( $f_user, $f_notion, $it['key'] ) ) ) { // phpcs:ignore
+			if ( in_array( $it['type'], array( 'h5p', 'quiz' ), true ) && ( $row = if_progress_row( $f_user, $f_notion, $it['key'] ) ) ) { // phpcs:ignore
 				$etat = ( (int) $row->passed ? '✔ ' . __( 'Réussie', 'catalogue-formations' ) : '○ ' . __( 'Pas encore validée', 'catalogue-formations' ) ) . ( null !== $row->max_score ? sprintf( ' — %d / %d', $row->score, $row->max_score ) : '' );
 			}
 			if ( 'exercise' === $it['type'] && isset( $subs[ $it['key'] ] ) ) {

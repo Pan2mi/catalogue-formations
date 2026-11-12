@@ -29,6 +29,7 @@ function if_items_from_blocks( $blocks, &$out ) {
 		'catalogue-formations/document' => 'pdf',
 		'catalogue-formations/exercice' => 'exercise',
 		'catalogue-formations/h5p'      => 'h5p',
+		'catalogue-formations/quiz'     => 'quiz',
 	);
 	foreach ( $blocks as $b ) {
 		if ( isset( $map[ $b['blockName'] ] ) && ! empty( $b['attrs']['key'] ) ) {
@@ -108,6 +109,12 @@ function if_item_from_attrs( $type, $a ) {
 		$item['no_skip']    = ! empty( $a['noSkip'] );
 	} elseif ( 'pdf' === $type ) {
 		$item['attachment_id'] = isset( $a['attachmentId'] ) ? absint( $a['attachmentId'] ) : 0;
+	} elseif ( 'quiz' === $type ) {
+		$item['questions'] = if_sanitize_questions( isset( $a['questions'] ) ? $a['questions'] : array() );
+		$item['pass']      = isset( $a['passScore'] ) ? min( 100, max( 0, (int) $a['passScore'] ) ) : 50;
+		$item['attempts']  = isset( $a['attempts'] ) ? max( 0, (int) $a['attempts'] ) : 0;
+		$item['shuffle']   = ! empty( $a['shuffle'] );
+		$item['show']      = isset( $a['showCorrection'] ) && in_array( $a['showCorrection'], array( 'always', 'passed', 'never' ), true ) ? $a['showCorrection'] : 'always';
 	} elseif ( 'h5p' === $type ) {
 		$item['content_id'] = isset( $a['contentId'] ) ? absint( $a['contentId'] ) : 0;
 		$item['pass']       = isset( $a['passScore'] ) ? min( 100, max( 0, (int) $a['passScore'] ) ) : 0;
@@ -124,6 +131,7 @@ function if_items_from_elementor( $elements, &$out ) {
 		'cf_document' => 'pdf',
 		'cf_exercice' => 'exercise',
 		'cf_h5p'      => 'h5p',
+		'cf_quiz'     => 'quiz',
 	);
 	foreach ( (array) $elements as $el ) {
 		if ( ! is_array( $el ) ) {
@@ -154,6 +162,12 @@ function if_item_from_elementor_settings( $type, $id, $s ) {
 		$attrs['noSkip']     = isset( $s['no_skip'] ) && 'yes' === $s['no_skip'];
 	} elseif ( 'pdf' === $type ) {
 		$attrs['attachmentId'] = isset( $s['file']['id'] ) ? $s['file']['id'] : 0;
+	} elseif ( 'quiz' === $type ) {
+		$attrs['questions']      = if_questions_from_elementor( isset( $s['questions'] ) ? $s['questions'] : array() );
+		$attrs['passScore']      = isset( $s['pass'] ) ? $s['pass'] : 50;
+		$attrs['attempts']       = isset( $s['attempts'] ) ? $s['attempts'] : 0;
+		$attrs['shuffle']        = isset( $s['shuffle'] ) && 'yes' === $s['shuffle'];
+		$attrs['showCorrection'] = isset( $s['show'] ) ? $s['show'] : 'always';
 	} elseif ( 'h5p' === $type ) {
 		$attrs['contentId'] = isset( $s['content_id'] ) ? $s['content_id'] : 0;
 		$attrs['passScore'] = isset( $s['pass'] ) ? $s['pass'] : 0;
@@ -305,6 +319,19 @@ function if_register_blocks() {
 		)
 	);
 	register_block_type(
+		'catalogue-formations/quiz',
+		$common + array(
+			'attributes'      => $base_attrs + array(
+				'questions'      => array( 'type' => 'array', 'default' => array() ),
+				'passScore'      => array( 'type' => 'number', 'default' => 50 ),
+				'attempts'       => array( 'type' => 'number', 'default' => 0 ),
+				'shuffle'        => array( 'type' => 'boolean', 'default' => false ),
+				'showCorrection' => array( 'type' => 'string', 'default' => 'always' ),
+			),
+			'render_callback' => $render( 'quiz' ),
+		)
+	);
+	register_block_type(
 		'catalogue-formations/h5p',
 		$common + array(
 			'attributes'      => $base_attrs + array(
@@ -337,6 +364,7 @@ function if_elementor_widgets( $widgets_manager ) {
 	$widgets_manager->register( new \CF_Elementor_Video() );
 	$widgets_manager->register( new \CF_Elementor_Document() );
 	$widgets_manager->register( new \CF_Elementor_Exercice() );
+	$widgets_manager->register( new \CF_Elementor_Quiz() );
 	if ( if_h5p_active() ) {
 		$widgets_manager->register( new \CF_Elementor_H5P() );
 	}

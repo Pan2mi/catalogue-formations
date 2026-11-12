@@ -33,6 +33,7 @@ function if_privacy_erase_user( $user_id ) {
 			$count++;
 		}
 	}
+	$count += (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->usermeta} WHERE user_id = %d AND meta_key LIKE %s", $user_id, $wpdb->esc_like( '_if_quiz_' ) . '%' ) ); // phpcs:ignore
 	foreach ( array( 'submissions', 'progress', 'access' ) as $t ) {
 		$count += (int) $wpdb->delete( if_table( $t ), array( 'user_id' => $user_id ) );
 	}

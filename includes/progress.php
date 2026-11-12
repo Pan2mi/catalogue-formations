@@ -85,7 +85,7 @@ function if_progress( $user_id, $notion_id ) {
 }
 
 function if_find_item( $notion_id, $key, $type ) {
-	$legacy = array( 'video' => '_if_videos', 'pdf' => '_if_pdfs', 'exercise' => '_if_exercises', 'h5p' => '_if_none' );
+	$legacy = array( 'video' => '_if_videos', 'pdf' => '_if_pdfs', 'exercise' => '_if_exercises', 'h5p' => '_if_none', 'quiz' => '_if_none' );
 	foreach ( if_items_of_type( $notion_id, $type, isset( $legacy[ $type ] ) ? $legacy[ $type ] : '_if_none' ) as $it ) {
 		if ( $it['key'] === $key ) {
 			return $it;

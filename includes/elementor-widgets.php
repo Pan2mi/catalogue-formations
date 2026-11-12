@@ -61,7 +61,7 @@ abstract class CF_Elementor_Base extends Widget_Base {
 		$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : get_the_ID(); // phpcs:ignore
 		$opts    = array( '' => __( '— Choisir —', 'catalogue-formations' ) );
 		foreach ( $post_id ? (array) if_inline_items( $post_id ) : array() as $it ) {
-			if ( ! $scored_only || 'h5p' === $it['type'] ) {
+			if ( ! $scored_only || in_array( $it['type'], array( 'h5p', 'quiz' ), true ) ) {
 				$opts[ $it['key'] ] = $it['title'];
 			}
 		}
@@ -377,5 +377,70 @@ class CF_Elementor_H5P extends CF_Elementor_Base {
 		$item['content_id'] = isset( $s['content_id'] ) ? absint( $s['content_id'] ) : 0;
 		$item['pass']       = isset( $s['pass'] ) ? (int) $s['pass'] : 0;
 		echo if_render_item( if_current_notion_id(), 'h5p', $item ); // phpcs:ignore
+	}
+}
+
+class CF_Elementor_Quiz extends CF_Elementor_Base {
+	public function get_name() {
+		return 'cf_quiz';
+	}
+	public function get_title() {
+		return __( 'Quiz', 'catalogue-formations' );
+	}
+	public function get_icon() {
+		return 'eicon-checkbox';
+	}
+	public function get_keywords() {
+		return array( 'quiz', 'qcm', 'vrai', 'faux', 'question', 'formation', 'suivi' );
+	}
+
+	protected function register_controls() {
+		$this->start_controls_section( 'content', array( 'label' => __( 'Quiz', 'catalogue-formations' ) ) );
+		$this->title_controls();
+		$rep = new \Elementor\Repeater();
+		$rep->add_control(
+			'qtype',
+			array(
+				'label'   => __( 'Type de question', 'catalogue-formations' ),
+				'type'    => Controls_Manager::SELECT,
+				'default' => 'single',
+				'options' => array(
+					'single'    => __( 'QCM — une bonne réponse', 'catalogue-formations' ),
+					'multiple'  => __( 'QCM — plusieurs bonnes réponses', 'catalogue-formations' ),
+					'truefalse' => __( 'Vrai / faux', 'catalogue-formations' ),
+					'short'     => __( 'Réponse courte', 'catalogue-formations' ),
+				),
+			)
+		);
+		$rep->add_control( 'question', array( 'label' => __( 'Question', 'catalogue-formations' ), 'type' => Controls_Manager::TEXTAREA, 'rows' => 2 ) );
+		$rep->add_control( 'choices', array( 'label' => __( 'Réponses proposées', 'catalogue-formations' ), 'description' => __( 'Une par ligne. Mettez * devant les bonnes réponses. Ex. : *1/4', 'catalogue-formations' ), 'type' => Controls_Manager::TEXTAREA, 'rows' => 4, 'condition' => array( 'qtype' => array( 'single', 'multiple' ) ) ) );
+		$rep->add_control( 'tf', array( 'label' => __( 'Bonne réponse', 'catalogue-formations' ), 'type' => Controls_Manager::SELECT, 'default' => 'true', 'options' => array( 'true' => __( 'Vrai', 'catalogue-formations' ), 'false' => __( 'Faux', 'catalogue-formations' ) ), 'condition' => array( 'qtype' => 'truefalse' ) ) );
+		$rep->add_control( 'answers', array( 'label' => __( 'Réponses acceptées', 'catalogue-formations' ), 'description' => __( 'Une par ligne. Majuscules et accents ne comptent pas.', 'catalogue-formations' ), 'type' => Controls_Manager::TEXTAREA, 'rows' => 3, 'condition' => array( 'qtype' => 'short' ) ) );
+		$rep->add_control( 'explanation', array( 'label' => __( 'Explication (montrée après la correction)', 'catalogue-formations' ), 'type' => Controls_Manager::TEXTAREA, 'rows' => 2 ) );
+		$this->add_control(
+			'questions',
+			array(
+				'label'       => __( 'Questions', 'catalogue-formations' ),
+				'type'        => Controls_Manager::REPEATER,
+				'fields'      => $rep->get_controls(),
+				'title_field' => '{{{ question || "Nouvelle question" }}}',
+				'default'     => array( array( 'qtype' => 'single', 'question' => __( 'Ma première question ?', 'catalogue-formations' ), 'choices' => "*Bonne réponse\nMauvaise réponse" ) ),
+			)
+		);
+		$this->end_controls_section();
+
+		$this->start_controls_section( 'quiz_settings', array( 'label' => __( 'Réglages du quiz', 'catalogue-formations' ) ) );
+		$this->add_control( 'pass', array( 'label' => __( 'Score minimum pour valider (%)', 'catalogue-formations' ), 'type' => Controls_Manager::NUMBER, 'min' => 0, 'max' => 100, 'default' => 50 ) );
+		$this->add_control( 'attempts', array( 'label' => __( 'Nombre d\'essais', 'catalogue-formations' ), 'description' => __( '0 = illimité', 'catalogue-formations' ), 'type' => Controls_Manager::NUMBER, 'min' => 0, 'default' => 0 ) );
+		$this->add_control( 'shuffle', array( 'label' => __( 'Mélanger questions et réponses', 'catalogue-formations' ), 'type' => Controls_Manager::SWITCHER, 'return_value' => 'yes' ) );
+		$this->add_control( 'show', array( 'label' => __( 'Montrer la correction', 'catalogue-formations' ), 'type' => Controls_Manager::SELECT, 'default' => 'always', 'options' => array( 'always' => __( 'Après chaque essai', 'catalogue-formations' ), 'passed' => __( 'Seulement une fois le quiz réussi', 'catalogue-formations' ), 'never' => __( 'Jamais (score seulement)', 'catalogue-formations' ) ) ) );
+		$this->end_controls_section();
+		$this->style_controls();
+	}
+
+	protected function render() {
+		$s    = $this->get_settings_for_display();
+		$item = array_merge( if_item_from_elementor_settings( 'quiz', $this->get_id(), $s ), $this->base_item( $s ) );
+		echo if_render_item( if_current_notion_id(), 'quiz', $item ); // phpcs:ignore
 	}
 }

@@ -25,3 +25,15 @@
 .cf-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
 .cf-badge { font-size: 12px; background: #fff8e5; border: 1px solid #dba617; border-radius: 10px; padding: 2px 8px; }
 .cf-badge--hidden { background: #f0f0f1; border-color: #8c8f94; }
+
+/* Quiz */
+.cf-quiz-edit { display: flex; flex-direction: column; gap: 12px; margin: 8px 0; }
+.cf-q { border: 1px solid #c3c4c7; border-radius: 6px; padding: 10px 12px; background: #fff; display: flex; flex-direction: column; gap: 8px; }
+.cf-q__head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cf-q__head strong { margin-right: auto; }
+.cf-q__head .components-base-control { min-width: 220px; }
+.cf-q-choice { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+.cf-q-choice input[type=text] { flex: 1; }
+.cf-q-choice.is-correct input[type=text] { border-color: #1e8e3e; background: #f0faf2; }
+.cf-q-add { display: flex; flex-wrap: wrap; gap: 6px; }
+.cf-quiz-preview { margin: 6px 0 6px 20px; }

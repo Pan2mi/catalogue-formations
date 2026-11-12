@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 2.8.0
+- **Quiz** intégré (bloc Gutenberg + widget Elementor, sans H5P) : QCM une ou plusieurs bonnes réponses, vrai/faux, réponse courte.
+- Corrigé automatiquement ; score minimum pour valider ; nombre d'essais ; mélange ; correction affichée après chaque essai, une fois réussi, ou jamais.
+- Meilleur score gardé : compte dans l'avancement et utilisable dans la condition « score minimum ».
+- Démo Playground : un quiz dans « Les fractions simples ».
+
 ## 2.7.0
 - Fichiers joints aux réponses protégés : dossier à part, nom aléatoire, ouverts seulement par l'apprenant et les formateurs, absents de la médiathèque. Les anciens fichiers sont déplacés automatiquement.
 - Réglages → « À la suppression de l'extension » : tout garder (par défaut), supprimer les données des apprenants et les réglages, ou tout supprimer (y compris notions, niveaux, matières).

@@ -41,6 +41,14 @@
    - L'avancement compte chaque élément suivi, dans l'ordre de la page.
    - L'ancienne boîte « Contenus de la notion » a été retirée : les notions qui l'utilisaient ont été **converties automatiquement** en blocs (ajoutés en fin de page, avancement conservé).
 
+## Quiz (sans H5P)
+- Bouton **❓ Quiz** dans « Ajouter un contenu suivi » (ou widget **Quiz** dans Elementor).
+- Types : QCM une bonne réponse, QCM plusieurs bonnes réponses, vrai/faux, réponse courte (majuscules et accents ignorés).
+- Explication facultative par question, montrée après la correction.
+- Réglages : score minimum (%), nombre d'essais (0 = illimité), mélange, quand montrer la correction.
+- Le meilleur score est gardé ; le quiz compte dans l'avancement quand il est réussi.
+- Elementor : une réponse par ligne, avec * devant les bonnes réponses.
+
 ## Installer H5P (une fois)
 1. **Extensions → Ajouter** → chercher **H5P** → Installer → Activer.
 2. **H5P Content → Add New** : H5P demande l'autorisation de communiquer avec H5P.org (« H5P Hub »). Accepter permet d'installer facilement les types d'activités ; refuser oblige à téléverser des fichiers .h5p.

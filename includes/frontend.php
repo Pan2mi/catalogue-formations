@@ -37,6 +37,8 @@ function if_notice() {
 		'upload'    => array( 'error', __( 'Le fichier n\'a pas pu être envoyé (formats acceptés : PDF, Word, ODT, JPG, PNG, TXT).', 'catalogue-formations' ) ),
 		'noaccess'  => array( 'error', __( 'Vous n\'avez pas accès à cette notion actuellement.', 'catalogue-formations' ) ),
 		'error'     => array( 'error', __( 'Une erreur est survenue.', 'catalogue-formations' ) ),
+		'quizdone'  => array( 'ok', __( 'Vos réponses ont été corrigées : voir le résultat dans le quiz.', 'catalogue-formations' ) ),
+		'quizmax'   => array( 'error', __( 'Vous avez utilisé tous vos essais pour ce quiz.', 'catalogue-formations' ) ),
 	);
 	$k = sanitize_key( wp_unslash( $_GET['if_msg'] ) ); // phpcs:ignore
 	if ( ! isset( $msgs[ $k ] ) ) {
@@ -205,7 +207,7 @@ function if_render_item( $notion_id, $type, $item, $inner_html = null, $wrapper 
 	$user  = get_current_user_id();
 	$key   = isset( $item['key'] ) ? $item['key'] : '';
 	$title = isset( $item['title'] ) && '' !== $item['title'] ? $item['title'] : if_type_label( $type );
-	$icons = array( 'video' => '🎬', 'pdf' => '📄', 'exercise' => '✏️', 'h5p' => '🧩' );
+	$icons = array( 'video' => '🎬', 'pdf' => '📄', 'exercise' => '✏️', 'h5p' => '🧩', 'quiz' => '❓' );
 
 	if ( ! $notion_id || 'if_notion' !== get_post_type( $notion_id ) ) {
 		return '<p class="if-empty-item">' . esc_html__( 'Cet élément ne fonctionne que dans une notion.', 'catalogue-formations' ) . '</p>';
@@ -259,6 +261,8 @@ function if_render_item( $notion_id, $type, $item, $inner_html = null, $wrapper 
 		}
 	} elseif ( 'h5p' === $type ) {
 		echo if_render_h5p( $notion_id, $item ); // phpcs:ignore
+	} elseif ( 'quiz' === $type ) {
+		echo if_render_quiz( $notion_id, $item ); // phpcs:ignore
 	} else {
 		$subs = if_user_submissions( $user, $notion_id );
 		$sub  = isset( $subs[ $key ] ) ? $subs[ $key ] : null;

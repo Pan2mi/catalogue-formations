@@ -75,3 +75,21 @@
 .if-item--sequence p a { font-weight: 600; }
 .cf-next { margin-left: 6px; }
 .cf-staff-note { background: #fff8e5; border-left: 4px solid #dba617; padding: 6px 10px; font-size: .85em; margin: 0 0 10px; }
+
+/* Quiz */
+.cf-quiz__info { color: #50575e; font-size: .9em; margin: 0 0 8px; }
+.cf-quiz__status { font-weight: 600; }
+.cf-quiz__status.is-passed { color: #1e8e3e; }
+.cf-quiz__list { padding-left: 1.4em; }
+.cf-quiz__list li { margin: 0 0 14px; }
+.cf-quiz__list fieldset { border: 0; padding: 0; margin: 0; }
+.cf-quiz__q { font-weight: 600; margin-bottom: 6px; }
+.cf-quiz__choice { display: block; margin: 4px 0; cursor: pointer; }
+.cf-quiz__short { width: 100%; max-width: 420px; padding: 6px 8px; }
+.cf-quiz__form > summary, .cf-quiz__review > summary { cursor: pointer; font-weight: 600; margin: 8px 0; }
+.cf-quiz__review ol { padding-left: 1.4em; }
+.cf-quiz__review li { margin: 0 0 12px; padding: 6px 10px; border-left: 4px solid #c3c4c7; }
+.cf-quiz__review li.is-ok { border-color: #1e8e3e; }
+.cf-quiz__review li.is-ko { border-color: #d63638; }
+.cf-quiz__given { color: #50575e; font-size: .9em; }
+.cf-quiz__expl { background: #f6f7f7; padding: 6px 10px; border-radius: 4px; margin-top: 4px; }

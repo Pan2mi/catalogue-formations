@@ -64,6 +64,20 @@ $fractions = wp_insert_post(
 				$b( 'catalogue-formations/document', array( 'key' => 'p_demo_fiche', 'title' => 'Fiche résumé', 'attachmentId' => (int) $att, 'fileName' => 'fiche-fractions.pdf' ) ),
 				$b( 'core/heading', array(), '<h2 class="wp-block-heading">À toi de jouer</h2>' ),
 				$b( 'catalogue-formations/exercice', array( 'key' => 'e_demo_pizza', 'title' => 'Partager une pizza', 'instructions' => '<p>Une pizza est coupée en 4 parts égales. Tu en manges 1. Quelle fraction de la pizza as-tu mangée ? Explique avec tes mots.</p>' ) ),
+				$b(
+					'catalogue-formations/quiz',
+					array(
+						'key'       => 'q_demo_fractions',
+						'title'     => 'Quiz : les fractions',
+						'passScore' => 75,
+						'questions' => array(
+							array( 'type' => 'single', 'text' => 'Une tablette a 8 carrés. J\'en mange 3. Quelle fraction ai-je mangée ?', 'choices' => array( array( 'text' => '3/8', 'correct' => true ), array( 'text' => '8/3', 'correct' => false ), array( 'text' => '3/5', 'correct' => false ) ), 'explanation' => '3 carrés sur 8 : on écrit 3/8.' ),
+							array( 'type' => 'multiple', 'text' => 'Lesquelles valent la moitié ?', 'choices' => array( array( 'text' => '1/2', 'correct' => true ), array( 'text' => '2/4', 'correct' => true ), array( 'text' => '3/4', 'correct' => false ) ) ),
+							array( 'type' => 'truefalse', 'text' => '1/2 est plus grand que 1/4.', 'answerTrue' => true, 'explanation' => 'Une moitié est plus grande qu\'un quart.' ),
+							array( 'type' => 'short', 'text' => 'Comment s\'appelle le nombre du bas dans une fraction ?', 'answers' => array( 'dénominateur', 'le dénominateur' ) ),
+						),
+					)
+				),
 			)
 		),
 	)

@@ -102,6 +102,7 @@ function if_type_label( $type ) {
 		'pdf'      => __( 'PDF', 'catalogue-formations' ),
 		'exercise' => __( 'Exercice', 'catalogue-formations' ),
 		'h5p'      => __( 'Activité H5P', 'catalogue-formations' ),
+		'quiz'     => __( 'Quiz', 'catalogue-formations' ),
 	);
 	return isset( $labels[ $type ] ) ? $labels[ $type ] : $type;
 }

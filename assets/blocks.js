@@ -91,7 +91,7 @@
 	}
 
 	/* ---------- Restrictions d'accès (comme Moodle) ---------- */
-	var ICONS = { 'catalogue-formations/video': '🎬', 'catalogue-formations/document': '📄', 'catalogue-formations/exercice': '✏️', 'catalogue-formations/h5p': '🧩' };
+	var ICONS = { 'catalogue-formations/video': '🎬', 'catalogue-formations/document': '📄', 'catalogue-formations/exercice': '✏️', 'catalogue-formations/h5p': '🧩', 'catalogue-formations/quiz': '❓' };
 
 	/** Autres contenus suivis de la page (pour « tel contenu terminé » / « score minimum »). */
 	function useOtherItems(clientId) {
@@ -101,7 +101,7 @@
 			store.getClientIdsWithDescendants().forEach(function (id) {
 				var b = store.getBlock(id);
 				if (id !== clientId && b && ICONS[b.name] && b.attributes.key) {
-					out.push({ key: b.attributes.key, label: ICONS[b.name] + ' ' + (b.attributes.title || 'Sans titre'), scored: b.name === 'catalogue-formations/h5p' });
+					out.push({ key: b.attributes.key, label: ICONS[b.name] + ' ' + (b.attributes.title || 'Sans titre'), scored: b.name === 'catalogue-formations/h5p' || b.name === 'catalogue-formations/quiz' });
 				}
 			});
 			return out;
@@ -140,7 +140,7 @@
 				fields = el(wp.components.SelectControl, { label: 'Contenu à terminer', value: c.key || '', options: itemOpts(false), onChange: function (v) { setCond(i, { key: v }); }, __nextHasNoMarginBottom: true });
 			} else if (c.type === 'score') {
 				fields = el(Fragment, null,
-					el(wp.components.SelectControl, { label: 'Contenu noté', help: itemOpts(true).length < 2 ? 'Ajoutez d\'abord une activité H5P dans la page.' : '', value: c.key || '', options: itemOpts(true), onChange: function (v) { setCond(i, { key: v }); }, __nextHasNoMarginBottom: true }),
+					el(wp.components.SelectControl, { label: 'Contenu noté', help: itemOpts(true).length < 2 ? 'Ajoutez d\'abord un quiz ou une activité H5P dans la page.' : '', value: c.key || '', options: itemOpts(true), onChange: function (v) { setCond(i, { key: v }); }, __nextHasNoMarginBottom: true }),
 					el(wp.components.RangeControl, { label: 'Score minimum (%)', min: 0, max: 100, step: 5, value: c.min === undefined ? 50 : c.min, onChange: function (v) { setCond(i, { min: v || 0 }); } })
 				);
 			} else if (c.type === 'date') {
@@ -376,6 +376,110 @@
 		save: function () { return null; }
 	});
 
+	/* ---------- Quiz ---------- */
+	var QTYPES = [
+		{ value: 'single', label: 'QCM — une bonne réponse' },
+		{ value: 'multiple', label: 'QCM — plusieurs bonnes réponses' },
+		{ value: 'truefalse', label: 'Vrai / faux' },
+		{ value: 'short', label: 'Réponse courte' }
+	];
+	function newQuestion(type) {
+		var q = { type: type || 'single', text: '', explanation: '' };
+		if (q.type === 'truefalse') { q.answerTrue = true; }
+		else if (q.type === 'short') { q.answers = ''; }
+		else { q.choices = [{ text: '', correct: true }, { text: '', correct: false }]; }
+		return q;
+	}
+	function QuestionEditor(p) {
+		var q = p.q, i = p.i, n = p.n;
+		function upd(patch) { var x = {}; Object.keys(q).forEach(function (k) { x[k] = q[k]; }); Object.keys(patch).forEach(function (k) { x[k] = patch[k]; }); p.onChange(x); }
+		function setChoice(j, patch) {
+			var list = q.choices.map(function (ch, k) {
+				var x = { text: ch.text, correct: ch.correct };
+				if (k === j) { Object.keys(patch).forEach(function (kk) { x[kk] = patch[kk]; }); }
+				else if (patch.correct && q.type === 'single') { x.correct = false; }
+				return x;
+			});
+			upd({ choices: list });
+		}
+		var body;
+		if (q.type === 'truefalse') {
+			body = el(c.RadioControl, { label: 'Bonne réponse', selected: q.answerTrue ? 'true' : 'false', options: [{ value: 'true', label: 'Vrai' }, { value: 'false', label: 'Faux' }], onChange: function (v) { upd({ answerTrue: v === 'true' }); } });
+		} else if (q.type === 'short') {
+			body = el(c.TextareaControl, { label: 'Réponses acceptées (une par ligne)', help: 'Majuscules, accents et point final ne comptent pas.', rows: 3, value: Array.isArray(q.answers) ? q.answers.join('\n') : (q.answers || ''), onChange: function (v) { upd({ answers: v }); }, __nextHasNoMarginBottom: true });
+		} else {
+			body = el('div', { className: 'cf-q-choices' },
+				el('p', { className: 'cf-help' }, q.type === 'single' ? 'Cochez LA bonne réponse :' : 'Cochez TOUTES les bonnes réponses :'),
+				(q.choices || []).map(function (ch, j) {
+					return el('div', { key: j, className: 'cf-q-choice' + (ch.correct ? ' is-correct' : '') },
+						el('input', { type: q.type === 'single' ? 'radio' : 'checkbox', checked: !!ch.correct, 'aria-label': 'Bonne réponse', onChange: function (e) { setChoice(j, { correct: q.type === 'single' ? true : e.target.checked }); } }),
+						el('input', { type: 'text', className: 'components-text-control__input', value: ch.text, placeholder: 'Réponse ' + (j + 1), onChange: function (e) { setChoice(j, { text: e.target.value }); } }),
+						q.choices.length > 2 ? el(c.Button, { icon: 'no-alt', label: 'Retirer cette réponse', size: 'small', onClick: function () { upd({ choices: q.choices.filter(function (x, k) { return k !== j; }) }); } }) : null
+					);
+				}),
+				el(c.Button, { variant: 'link', onClick: function () { upd({ choices: (q.choices || []).concat([{ text: '', correct: false }]) }); } }, '+ Ajouter une réponse')
+			);
+		}
+		return el('div', { className: 'cf-q' },
+			el('div', { className: 'cf-q__head' },
+				el('strong', null, 'Question ' + (i + 1)),
+				el(c.SelectControl, { value: q.type, options: QTYPES, onChange: function (v) { var nq = newQuestion(v); nq.text = q.text; nq.explanation = q.explanation; p.onChange(nq); }, __nextHasNoMarginBottom: true }),
+				el(c.Button, { icon: 'arrow-up-alt2', label: 'Monter', size: 'small', disabled: i === 0, onClick: function () { p.move(-1); } }),
+				el(c.Button, { icon: 'arrow-down-alt2', label: 'Descendre', size: 'small', disabled: i === n - 1, onClick: function () { p.move(1); } }),
+				el(c.Button, { icon: 'trash', label: 'Supprimer la question', isDestructive: true, size: 'small', onClick: p.remove })
+			),
+			el(c.TextareaControl, { label: 'Question', rows: 2, value: q.text, onChange: function (v) { upd({ text: v }); }, __nextHasNoMarginBottom: true }),
+			body,
+			el(c.TextareaControl, { label: 'Explication (facultatif, montrée après la correction)', rows: 2, value: q.explanation || '', onChange: function (v) { upd({ explanation: v }); }, __nextHasNoMarginBottom: true })
+		);
+	}
+
+	wp.blocks.registerBlockType('catalogue-formations/quiz', {
+		apiVersion: 3,
+		title: 'Quiz',
+		description: 'QCM, vrai/faux, réponse courte : corrigé automatiquement, score gardé pour l\'avancement et les conditions.',
+		category: 'catalogue-formations',
+		icon: 'yes-alt',
+		keywords: ['quiz', 'qcm', 'vrai', 'faux', 'question', 'évaluation', 'formation'],
+		supports: SUPPORTS,
+		attributes: attrs({ questions: { type: 'array', default: [] }, passScore: { type: 'number', default: 50 }, attempts: { type: 'number', default: 0 }, shuffle: { type: 'boolean', default: false }, showCorrection: { type: 'string', default: 'always' } }),
+		edit: function (props) {
+			useUniqueKey(props, 'q');
+			var a = props.attributes;
+			var qs = a.questions || [];
+			useEffect(function () { if (!qs.length) { props.setAttributes({ questions: [newQuestion('single')] }); } }, []);
+			function setQ(list) { props.setAttributes({ questions: list }); }
+			var blockProps = be.useBlockProps({ className: 'if-item if-item--quiz cf-tracked' });
+			var summary = qs.length + ' question' + (qs.length > 1 ? 's' : '') + ' · validé à partir de ' + a.passScore + ' %' + (a.attempts ? ' · ' + a.attempts + ' essai' + (a.attempts > 1 ? 's' : '') : ' · essais illimités');
+			return el('div', blockProps,
+				el(be.InspectorControls, null,
+					el(c.PanelBody, { title: 'Réglages du quiz', initialOpen: true },
+						el(c.RangeControl, { label: 'Score minimum pour valider (%)', min: 0, max: 100, step: 5, value: a.passScore, onChange: function (v) { props.setAttributes({ passScore: v || 0 }); } }),
+						el(c.TextControl, { type: 'number', min: 0, label: 'Nombre d\'essais (0 = illimité)', value: a.attempts, onChange: function (v) { props.setAttributes({ attempts: parseInt(v, 10) || 0 }); }, __nextHasNoMarginBottom: true }),
+						el(c.ToggleControl, { label: 'Mélanger questions et réponses', checked: a.shuffle, onChange: function (v) { props.setAttributes({ shuffle: v }); }, __nextHasNoMarginBottom: true }),
+						el(c.SelectControl, { label: 'Montrer la correction', value: a.showCorrection, options: [{ value: 'always', label: 'Après chaque essai' }, { value: 'passed', label: 'Seulement une fois le quiz réussi' }, { value: 'never', label: 'Jamais (score seulement)' }], onChange: function (v) { props.setAttributes({ showCorrection: v }); }, __nextHasNoMarginBottom: true })
+					)
+				),
+				header(props, '❓', 'Titre du quiz'),
+				props.isSelected ? el('div', { className: 'cf-quiz-edit' },
+					qs.map(function (q, i) {
+						return el(QuestionEditor, {
+							key: i, q: q, i: i, n: qs.length,
+							onChange: function (nq) { setQ(qs.map(function (x, k) { return k === i ? nq : x; })); },
+							remove: function () { setQ(qs.filter(function (x, k) { return k !== i; })); },
+							move: function (d) { var l = qs.slice(); var t = l[i]; l[i] = l[i + d]; l[i + d] = t; setQ(l); }
+						});
+					}),
+					el('div', { className: 'cf-q-add' }, QTYPES.map(function (t) {
+						return el(c.Button, { key: t.value, variant: 'secondary', size: 'small', onClick: function () { setQ(qs.concat([newQuestion(t.value)])); } }, '+ ' + t.label);
+					}))
+				) : el('ol', { className: 'cf-quiz-preview' }, qs.map(function (q, i) { return el('li', { key: i }, q.text || el('em', null, 'Question sans texte')); })),
+				footer('❓ ' + summary + (props.isSelected ? '' : ' — cliquez pour modifier les questions'))
+			);
+		},
+		save: function () { return null; }
+	});
+
 	/* ---------- Encadré « Ajouter un contenu suivi » (colonne de droite) ---------- */
 	var Panel = (wp.editor && wp.editor.PluginDocumentSettingPanel) || (wp.editPost && wp.editPost.PluginDocumentSettingPanel);
 	if (wp.plugins && Panel) {
@@ -383,6 +487,7 @@
 			{ name: 'catalogue-formations/video', icon: '🎬', label: 'Vidéo' },
 			{ name: 'catalogue-formations/document', icon: '📄', label: 'Document' },
 			{ name: 'catalogue-formations/exercice', icon: '✏️', label: 'Exercice' },
+			{ name: 'catalogue-formations/quiz', icon: '❓', label: 'Quiz' },
 			{ name: 'catalogue-formations/h5p', icon: '🧩', label: 'Activité H5P' }
 		];
 
@@ -404,7 +509,7 @@
 		function useCounts() {
 			return useSelect(function (select) {
 				var store = select('core/block-editor');
-				var res = { 'catalogue-formations/video': 0, 'catalogue-formations/document': 0, 'catalogue-formations/exercice': 0, 'catalogue-formations/h5p': 0 };
+				var res = { 'catalogue-formations/video': 0, 'catalogue-formations/document': 0, 'catalogue-formations/exercice': 0, 'catalogue-formations/h5p': 0, 'catalogue-formations/quiz': 0 };
 				store.getClientIdsWithDescendants().forEach(function (id) {
 					var b = store.getBlock(id);
 					if (b && res.hasOwnProperty(b.name)) { res[b.name]++; }
@@ -417,7 +522,7 @@
 		}
 		function QuickButtons() {
 			var counts = useCounts();
-			var total = counts['catalogue-formations/video'] + counts['catalogue-formations/document'] + counts['catalogue-formations/exercice'] + counts['catalogue-formations/h5p'];
+			var total = counts['catalogue-formations/video'] + counts['catalogue-formations/document'] + counts['catalogue-formations/exercice'] + counts['catalogue-formations/h5p'] + counts['catalogue-formations/quiz'];
 			return el(Fragment, null,
 				el('p', { className: 'cf-quick-help' }, 'Clic = ajouté juste après l\'endroit où vous êtes dans la page.'),
 				el('div', { className: 'cf-quick-buttons' }, TYPES.map(function (t) {

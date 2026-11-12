@@ -240,7 +240,7 @@ function if_join_reasons( $reasons, $match ) {
 
 /** Contenu bloqué (cadenas + ce qu'il faut faire). */
 function if_render_restricted( $type, $title, $r, $wrapper ) {
-	$icons = array( 'video' => '🎬', 'pdf' => '📄', 'exercise' => '✏️', 'h5p' => '🧩' );
+	$icons = array( 'video' => '🎬', 'pdf' => '📄', 'exercise' => '✏️', 'h5p' => '🧩', 'quiz' => '❓' );
 	$open  = $wrapper ? '<section ' . str_replace( 'if-item ', 'if-item if-item--locked if-item--sequence ', $wrapper ) . '>' : '<section class="if-item if-item--locked if-item--sequence">';
 	$text  = ucfirst( if_join_reasons( $r['reasons'], isset( $r['match'] ) ? $r['match'] : 'all' ) ) . '.';
 	$link  = $r['link'] ? ' <a href="#' . esc_attr( $r['link']['key'] ) . '">' . esc_html__( 'Y aller', 'catalogue-formations' ) . ' ↑</a>' : '';
