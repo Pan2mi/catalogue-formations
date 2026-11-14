@@ -128,6 +128,9 @@ function if_h5p_ajax_result() {
 	$notion_id = isset( $_POST['notion_id'] ) ? absint( $_POST['notion_id'] ) : 0;
 	$key       = isset( $_POST['key'] ) ? sanitize_key( wp_unslash( $_POST['key'] ) ) : '';
 	check_ajax_referer( 'if_h5p_' . $notion_id . '_' . $key, 'nonce' );
+	if ( function_exists( 'if_preview_active' ) && if_preview_active() ) {
+		wp_send_json_error( array( 'message' => 'preview' ), 403 );
+	}
 	$user = get_current_user_id();
 	$item = if_find_item( $notion_id, $key, 'h5p' );
 	if ( ! $user || ! $item || ! if_user_can_view( $user, $notion_id ) || if_item_locked( $user, $notion_id, $key ) ) {
@@ -173,7 +176,7 @@ function if_render_h5p( $notion_id, $item ) {
 	if ( ! $cid ) {
 		return '<p class="if-empty-item">' . esc_html__( 'Aucune activité H5P choisie.', 'catalogue-formations' ) . '</p>';
 	}
-	$user = get_current_user_id();
+	$user = if_viewer_id();
 	$out  = '';
 	if ( $user && ! empty( $item['key'] ) ) {
 		wp_enqueue_script( 'cf-h5p-track' );

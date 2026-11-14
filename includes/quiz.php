@@ -136,6 +136,10 @@ function if_quiz_submit() {
 	$notion_id = isset( $_POST['notion_id'] ) ? absint( $_POST['notion_id'] ) : 0;
 	$key       = isset( $_POST['quiz_key'] ) ? sanitize_key( wp_unslash( $_POST['quiz_key'] ) ) : '';
 	check_admin_referer( 'if_quiz_' . $notion_id . '_' . $key );
+	if ( function_exists( 'if_preview_active' ) && if_preview_active() ) {
+		wp_safe_redirect( add_query_arg( 'if_msg', 'preview', get_permalink( $notion_id ) ) );
+		exit;
+	}
 	$user = get_current_user_id();
 	$back = get_permalink( $notion_id );
 	$item = if_find_item( $notion_id, $key, 'quiz' );
@@ -171,7 +175,7 @@ function if_quiz_submit() {
 /* ---------- Affichage ---------- */
 
 function if_render_quiz( $notion_id, $item ) {
-	$user  = get_current_user_id();
+	$user  = if_viewer_id();
 	$key   = $item['key'];
 	$qs    = isset( $item['questions'] ) ? $item['questions'] : array();
 	$pass  = isset( $item['pass'] ) ? (int) $item['pass'] : 0;

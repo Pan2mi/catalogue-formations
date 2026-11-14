@@ -1,5 +1,10 @@
 # Journal des versions
 
+## 2.11.0
+- **Voir comme un apprenant** (barre d'outils en haut du site, menu « 👁 ») : un apprenant sans accès, un apprenant qui commence, ou un apprenant précis. Bandeau d'aperçu, actions désactivées, « Quitter l'aperçu ».
+- Raccourcis : fiche apprenant (« Voir le site comme cet apprenant »), page Inscrits (« Voir comme »).
+- Correctif : un contenu « masqué aux apprenants » ou caché par ses conditions n'apparaît plus (même avec un cadenas) pour les visiteurs sans accès.
+
 ## 2.10.0
 - **Correction des exercices** : « Validé » ou « À refaire » (l'apprenant peut renvoyer une réponse), note facultative (« Noté sur… » dans le bloc).
 - Réglage par exercice : terminé quand la formatrice valide (par défaut) ou dès l'envoi.

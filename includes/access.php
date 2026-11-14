@@ -81,6 +81,9 @@ function if_user_access( $user_id, $notion_id ) {
 	if ( ! $user_id ) {
 		return $best;
 	}
+	if ( defined( 'IF_PREVIEW_UID' ) && IF_PREVIEW_UID === (int) $user_id ) {
+		return if_preview_fake_access( $notion_id ); // apprenant fictif de l'aperçu.
+	}
 	foreach ( if_get_access_rows( array( 'user_id' => $user_id, 'notion_id' => $notion_id ) ) as $row ) {
 		$s = if_row_state( $row );
 		$p = isset( $priority[ $s ] ) ? $priority[ $s ] : 0;
@@ -173,6 +176,10 @@ function if_handle_request() {
 		exit;
 	}
 	check_admin_referer( 'if_request_' . $notion_id );
+	if ( function_exists( 'if_preview_active' ) && if_preview_active() ) {
+		wp_safe_redirect( add_query_arg( 'if_msg', 'preview', $back ) );
+		exit;
+	}
 
 	if ( ! $notion_id || 'if_notion' !== get_post_type( $notion_id ) ) {
 		wp_safe_redirect( add_query_arg( 'if_msg', 'error', $back ) );

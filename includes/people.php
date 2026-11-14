@@ -55,7 +55,7 @@ function if_access_row_cells( $r, $show ) {
 	$back  = if_current_admin_url();
 	ob_start();
 	if ( 'user' === $show ) {
-		echo '<td><a href="' . esc_url( if_learner_url( $r->user_id ) ) . '"><strong>' . esc_html( if_user_name( $r->user_id ) ) . '</strong></a></td>';
+		echo '<td><a href="' . esc_url( if_learner_url( $r->user_id ) ) . '"><strong>' . esc_html( if_user_name( $r->user_id ) ) . '</strong></a><br><small><a href="' . esc_url( if_preview_url( 'user', $r->user_id, get_permalink( $r->notion_id ) ) ) . '">👁 ' . esc_html__( 'Voir comme', 'catalogue-formations' ) . '</a></small></td>';
 	} else {
 		echo '<td><a href="' . esc_url( if_enrolled_url( $r->notion_id ) ) . '"><strong>' . esc_html( get_the_title( $r->notion_id ) ) . '</strong></a><br><small>' . esc_html( if_terms_text( $r->notion_id, 'if_niveau' ) . ' · ' . if_terms_text( $r->notion_id, 'if_matiere' ) ) . '</small></td>';
 	}
@@ -205,6 +205,7 @@ function if_learner_profile( $uid ) {
 	echo '<span class="if-stat"><strong>' . (int) $todo . '</strong>' . esc_html__( 'exercice(s) à corriger', 'catalogue-formations' ) . '</span>';
 	echo '<span>✉️ ' . esc_html( $u->user_email ) . ' · ' . esc_html__( 'Identifiant :', 'catalogue-formations' ) . ' ' . esc_html( $u->user_login ) . '</span>';
 	echo '<a class="button" href="' . esc_url( get_edit_user_link( $uid ) ) . '">' . esc_html__( 'Modifier le compte', 'catalogue-formations' ) . '</a>';
+	echo '<a class="button" href="' . esc_url( if_preview_url( 'user', $uid, if_preview_landing( $uid ) ) ) . '">👁 ' . esc_html__( 'Voir le site comme cet apprenant', 'catalogue-formations' ) . '</a>';
 	if ( $todo ) {
 		echo '<a class="button" href="' . esc_url( if_admin_url( 'if-corrections' ) ) . '">' . esc_html__( 'Voir les corrections', 'catalogue-formations' ) . '</a>';
 	}
@@ -267,7 +268,8 @@ function if_page_enrolled() {
 	echo '<span class="if-stat"><strong>' . (int) $open . '</strong>' . esc_html__( 'accès ouvert(s)', 'catalogue-formations' ) . '</span>';
 	echo '<span class="if-stat"><strong>' . (int) $pend . '</strong>' . esc_html__( 'demande(s) en attente', 'catalogue-formations' ) . '</span>';
 	echo '<a class="button" href="' . esc_url( get_edit_post_link( $nid ) ) . '">' . esc_html__( 'Modifier la notion', 'catalogue-formations' ) . '</a>';
-	echo '<a class="button" href="' . esc_url( get_permalink( $nid ) ) . '" target="_blank">' . esc_html__( 'Voir la notion', 'catalogue-formations' ) . '</a></div>';
+	echo '<a class="button" href="' . esc_url( get_permalink( $nid ) ) . '" target="_blank">' . esc_html__( 'Voir la notion', 'catalogue-formations' ) . '</a>';
+	echo '<a class="button" href="' . esc_url( if_preview_url( 'fresh', 0, get_permalink( $nid ) ) ) . '">👁 ' . esc_html__( 'Voir comme un apprenant qui commence', 'catalogue-formations' ) . '</a></div>';
 
 	$has = wp_list_pluck( $rows, 'user_id' );
 	?>

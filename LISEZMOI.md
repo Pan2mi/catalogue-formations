@@ -79,6 +79,11 @@ Bloc suivi → panneau **Restrictions d'accès** (Elementor : section du même n
 - **Toutes les notions** → survoler une notion → **Dupliquer**, ou encadré **Dupliquer** dans l'éditeur.
 - La copie est un brouillon « … (copie) » avec tous les contenus, niveaux, matières et réglages, sans les inscrits.
 
+## Voir le site comme un apprenant
+- Sur le site, barre noire en haut : menu **👁 Voir comme un apprenant** → un apprenant sans accès, un apprenant qui commence, ou un apprenant précis (inscrits de la notion affichée).
+- Un bandeau rappelle l'aperçu ; les actions (répondre, terminer, demander l'accès) sont désactivées. **Quitter l'aperçu** pour revenir.
+- Aussi depuis la fiche apprenant (**Voir le site comme cet apprenant**) et la page **Inscrits** (**Voir comme**).
+
 ## 4. Gérer les accès — Formation → Accès
 - **Demandes en attente** : choisir les dates « du… au… » puis **Valider** (ou **Refuser**).
 - **Donner un accès directement** : utilisateur + notion + dates.

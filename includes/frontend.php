@@ -38,6 +38,7 @@ function if_notice() {
 		'noaccess'  => array( 'error', __( 'Vous n\'avez pas accès à cette notion actuellement.', 'catalogue-formations' ) ),
 		'error'     => array( 'error', __( 'Une erreur est survenue.', 'catalogue-formations' ) ),
 		'quizdone'  => array( 'ok', __( 'Vos réponses ont été corrigées : voir le résultat dans le quiz.', 'catalogue-formations' ) ),
+		'preview'   => array( 'error', __( 'Aperçu : cette action est désactivée.', 'catalogue-formations' ) ),
 		'quizmax'   => array( 'error', __( 'Vous avez utilisé tous vos essais pour ce quiz.', 'catalogue-formations' ) ),
 	);
 	$k = sanitize_key( wp_unslash( $_GET['if_msg'] ) ); // phpcs:ignore
@@ -125,7 +126,7 @@ function if_notion_content( $content ) {
 		return $content;
 	}
 	$notion_id = get_the_ID();
-	$user      = get_current_user_id();
+	$user      = if_viewer_id();
 	$can_view  = $user && if_user_can_view( $user, $notion_id );
 
 	$meta  = '<p class="if-meta"><strong>' . esc_html__( 'Niveau', 'catalogue-formations' ) . ' :</strong> ' . esc_html( if_terms_text( $notion_id, 'if_niveau' ) );
@@ -204,7 +205,7 @@ function if_render_video( $url ) {
  * $item : [ key, title, url | attachment_id | instructions ].
  */
 function if_render_item( $notion_id, $type, $item, $inner_html = null, $wrapper = null ) {
-	$user  = get_current_user_id();
+	$user  = if_viewer_id();
 	$key   = isset( $item['key'] ) ? $item['key'] : '';
 	$title = isset( $item['title'] ) && '' !== $item['title'] ? $item['title'] : if_type_label( $type );
 	$icons = array( 'video' => '🎬', 'pdf' => '📄', 'exercise' => '✏️', 'h5p' => '🧩', 'quiz' => '❓' );
@@ -215,6 +216,14 @@ function if_render_item( $notion_id, $type, $item, $inner_html = null, $wrapper 
 
 	// Sans accès : élément visible mais verrouillé.
 	if ( ! $user || ! if_user_can_view( $user, $notion_id ) ) {
+		// Contenu masqué aux apprenants, ou caché par ses conditions : rien n'est affiché (pas même un cadenas).
+		if ( $key ) {
+			foreach ( if_get_items( $notion_id, true ) as $it ) {
+				if ( $it['key'] === $key && ( $it['hidden'] || ( ! empty( $it['rules']['conds'] ) && 'hidden' === $it['rules']['display'] ) ) ) {
+					return '';
+				}
+			}
+		}
 		$open = $wrapper ? '<section ' . str_replace( 'if-item ', 'if-item if-item--locked ', $wrapper ) . '>' : '<section class="if-item if-item--locked">';
 		return $open . '<h3>🔒 ' . esc_html( $title ) . '</h3><p>' . esc_html( sprintf( __( '%s disponible avec l\'accès à cette notion.', 'catalogue-formations' ), if_type_label( $type ) ) ) . '</p></section>';
 	}
@@ -541,7 +550,7 @@ function if_sc_catalogue( $atts ) {
 }
 
 function if_card( $post ) {
-	$user  = get_current_user_id();
+	$user  = if_viewer_id();
 	$state = $user ? if_user_access( $user, $post->ID )['state'] : 'none';
 	$html  = '<article class="if-card">';
 	if ( has_post_thumbnail( $post ) ) {
@@ -567,7 +576,7 @@ function if_sc_dashboard() {
 	if ( ! is_user_logged_in() ) {
 		return '<p>' . esc_html__( 'Connectez-vous pour voir votre tableau de bord.', 'catalogue-formations' ) . ' <a class="if-btn" href="' . esc_url( wp_login_url( get_permalink() ) ) . '">' . esc_html__( 'Se connecter', 'catalogue-formations' ) . '</a></p>';
 	}
-	$user = get_current_user_id();
+	$user = if_viewer_id();
 	$rows = if_get_access_rows( array( 'user_id' => $user ) );
 
 	ob_start();

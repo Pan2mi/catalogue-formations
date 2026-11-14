@@ -107,6 +107,10 @@ function if_handle_complete() {
 	$key       = isset( $_POST['item_key'] ) ? sanitize_key( wp_unslash( $_POST['item_key'] ) ) : '';
 	$undo      = ! empty( $_POST['undo'] );
 	check_admin_referer( 'if_complete_' . $notion_id . '_' . $key );
+	if ( function_exists( 'if_preview_active' ) && if_preview_active() ) {
+		wp_safe_redirect( add_query_arg( 'if_msg', 'preview', get_permalink( $notion_id ) ) );
+		exit;
+	}
 
 	$user = get_current_user_id();
 	$back = get_permalink( $notion_id );
@@ -136,6 +140,9 @@ function if_handle_video_done() {
 	$notion_id = isset( $_POST['notion_id'] ) ? absint( $_POST['notion_id'] ) : 0;
 	$key       = isset( $_POST['key'] ) ? sanitize_key( wp_unslash( $_POST['key'] ) ) : '';
 	check_ajax_referer( 'if_video_' . $notion_id . '_' . $key, 'nonce' );
+	if ( function_exists( 'if_preview_active' ) && if_preview_active() ) {
+		wp_send_json_error( array( 'message' => 'preview' ), 403 );
+	}
 	$user = get_current_user_id();
 	$item = if_find_item( $notion_id, $key, 'video' );
 	if ( ! $user || ! $item || ! if_user_can_view( $user, $notion_id ) || if_item_locked( $user, $notion_id, $key ) || ( isset( $item['completion'] ) && 'button' === $item['completion'] ) ) {
@@ -152,6 +159,10 @@ function if_handle_submit() {
 	$notion_id = isset( $_POST['notion_id'] ) ? absint( $_POST['notion_id'] ) : 0;
 	$key       = isset( $_POST['exercise_key'] ) ? sanitize_key( wp_unslash( $_POST['exercise_key'] ) ) : '';
 	check_admin_referer( 'if_submit_' . $notion_id . '_' . $key );
+	if ( function_exists( 'if_preview_active' ) && if_preview_active() ) {
+		wp_safe_redirect( add_query_arg( 'if_msg', 'preview', get_permalink( $notion_id ) ) );
+		exit;
+	}
 
 	$user = get_current_user_id();
 	$back = get_permalink( $notion_id );
