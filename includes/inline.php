@@ -18,6 +18,7 @@ add_filter( 'block_categories_all', 'if_block_category', 10, 2 );
 add_action( 'init', 'if_elementor_support', 20 );
 add_action( 'elementor/elements/categories_registered', 'if_elementor_category' );
 add_action( 'elementor/widgets/register', 'if_elementor_widgets' );
+add_action( 'elementor/editor/after_enqueue_scripts', 'if_elementor_editor_script' );
 add_action( 'admin_init', 'if_convert_legacy_notions' );
 
 /* ---------- Lecture de la page ---------- */
@@ -376,6 +377,11 @@ function if_elementor_widgets( $widgets_manager ) {
 	if ( if_h5p_active() ) {
 		$widgets_manager->register( new \CF_Elementor_H5P() );
 	}
+}
+
+/** Liste « Contenu » des conditions mise à jour en direct dans l'éditeur. */
+function if_elementor_editor_script() {
+	wp_enqueue_script( 'cf-elementor-editor', IF_URL . 'assets/elementor-editor.js', array(), IF_VERSION, true );
 }
 
 /** Place la catégorie « Formation » en tête du panneau Elementor. */

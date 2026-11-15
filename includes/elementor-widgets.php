@@ -87,7 +87,7 @@ abstract class CF_Elementor_Base extends Widget_Base {
 				),
 			)
 		);
-		$rep->add_control( 'item', array( 'label' => __( 'Contenu', 'catalogue-formations' ), 'description' => __( 'Enregistrez la page pour voir les contenus ajoutés récemment.', 'catalogue-formations' ), 'type' => Controls_Manager::SELECT, 'options' => $this->other_items(), 'condition' => array( 'type' => array( 'done', 'score' ) ) ) );
+		$rep->add_control( 'item', array( 'label' => __( 'Contenu', 'catalogue-formations' ), 'type' => Controls_Manager::SELECT, 'options' => $this->other_items(), 'condition' => array( 'type' => array( 'done', 'score' ) ) ) );
 		$rep->add_control( 'min', array( 'label' => __( 'Score minimum (%)', 'catalogue-formations' ), 'type' => Controls_Manager::NUMBER, 'min' => 0, 'max' => 100, 'default' => 50, 'condition' => array( 'type' => 'score' ) ) );
 		$rep->add_control( 'from', array( 'label' => __( 'À partir du', 'catalogue-formations' ), 'type' => Controls_Manager::DATE_TIME, 'picker_options' => array( 'enableTime' => false ), 'condition' => array( 'type' => 'date' ) ) );
 		$rep->add_control( 'until', array( 'label' => __( 'Jusqu\'au', 'catalogue-formations' ), 'type' => Controls_Manager::DATE_TIME, 'picker_options' => array( 'enableTime' => false ), 'condition' => array( 'type' => 'date' ) ) );

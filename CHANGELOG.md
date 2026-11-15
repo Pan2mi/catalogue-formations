@@ -1,5 +1,10 @@
 # Journal des versions
 
+## 2.11.1
+- Testé avec **Elementor 4.4** : les 4 widgets (vidéo, document, exercice, quiz), les restrictions, la correction et l'aperçu fonctionnent.
+- Correctif Elementor : une condition laissée sur « Contenu terminé » (valeur par défaut) était perdue à l'enregistrement. Idem pour le délai laissé à 7 jours.
+- Elementor : la liste « Contenu » des conditions se met à jour en direct (plus besoin d'enregistrer et recharger après avoir ajouté un widget).
+
 ## 2.11.0
 - **Voir comme un apprenant** (barre d'outils en haut du site, menu « 👁 ») : un apprenant sans accès, un apprenant qui commence, ou un apprenant précis. Bandeau d'aperçu, actions désactivées, « Quitter l'aperçu ».
 - Raccourcis : fiche apprenant (« Voir le site comme cet apprenant »), page Inscrits (« Voir comme »).

@@ -65,14 +65,15 @@ function if_sanitize_rules( $r ) {
 function if_rules_from_elementor( $s ) {
 	$conds = array();
 	foreach ( isset( $s['conds'] ) && is_array( $s['conds'] ) ? $s['conds'] : array() as $c ) {
-		$type    = isset( $c['type'] ) ? $c['type'] : '';
+		// Elementor n'enregistre pas les valeurs laissées par défaut : on les remet.
+		$type    = isset( $c['type'] ) && '' !== $c['type'] ? $c['type'] : 'done';
 		$conds[] = array(
 			'type'  => $type,
 			'key'   => isset( $c['item'] ) ? $c['item'] : '',
 			'min'   => isset( $c['min'] ) ? $c['min'] : 50,
 			'from'  => isset( $c['from'] ) ? substr( (string) $c['from'], 0, 10 ) : '',
 			'until' => isset( $c['until'] ) ? substr( (string) $c['until'], 0, 10 ) : '',
-			'days'  => isset( $c['days'] ) ? $c['days'] : 0,
+			'days'  => isset( $c['days'] ) && '' !== $c['days'] ? $c['days'] : 7,
 		);
 	}
 	return if_sanitize_rules(
