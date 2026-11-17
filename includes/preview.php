@@ -178,6 +178,28 @@ function if_preview_admin_bar( $bar ) {
 
 /* ---------- Bandeau sur le site pendant l'aperçu ---------- */
 
+/** Page qui contient un shortcode (réglage d'abord, sinon recherche). */
+function if_page_with_shortcode( $option, $shortcode ) {
+	$id = (int) get_option( $option, 0 );
+	if ( $id && 'publish' === get_post_status( $id ) ) {
+		return $id;
+	}
+	$found = get_posts( array( 'post_type' => 'page', 'post_status' => 'publish', 's' => '[' . $shortcode, 'fields' => 'ids', 'numberposts' => 1 ) );
+	return $found ? (int) $found[0] : 0;
+}
+
+/** Liens « Catalogue » et « Tableau de bord » dans le bandeau d'aperçu. */
+function if_preview_nav_links() {
+	$out = '';
+	foreach ( array( array( 'if_catalogue_page', 'if_catalogue', __( 'Catalogue', 'catalogue-formations' ) ), array( 'if_dashboard_page', 'if_tableau_de_bord', __( 'Tableau de bord', 'catalogue-formations' ) ) ) as $l ) {
+		$id = if_page_with_shortcode( $l[0], $l[1] );
+		if ( $id ) {
+			$out .= ' <a href="' . esc_url( get_permalink( $id ) ) . '">' . esc_html( $l[2] ) . '</a>';
+		}
+	}
+	return $out;
+}
+
 function if_preview_banner() {
 	static $done = false;
 	if ( $done || ! if_preview_active() ) {
@@ -185,7 +207,7 @@ function if_preview_banner() {
 	}
 	$done = true;
 	$here = ( is_ssl() ? 'https://' : 'http://' ) . ( isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
-	echo '<div class="cf-preview-banner" role="status">👁 <strong>' . esc_html__( 'Aperçu', 'catalogue-formations' ) . '</strong> — ' . esc_html( sprintf( __( 'vous voyez le site comme %s. Les actions sont désactivées.', 'catalogue-formations' ), if_preview_label() ) ) . ' <a href="' . esc_url( if_preview_url( 'off', 0, remove_query_arg( 'if_msg', $here ) ) ) . '">' . esc_html__( 'Quitter l\'aperçu', 'catalogue-formations' ) . '</a></div>';
+	echo '<div class="cf-preview-banner" role="status">👁 <strong>' . esc_html__( 'Aperçu', 'catalogue-formations' ) . '</strong> — ' . esc_html( sprintf( __( 'vous voyez le site comme %s. Les actions sont désactivées.', 'catalogue-formations' ), if_preview_label() ) ) . if_preview_nav_links() . ' <a href="' . esc_url( if_preview_url( 'off', 0, remove_query_arg( 'if_msg', $here ) ) ) . '">' . esc_html__( 'Quitter l\'aperçu', 'catalogue-formations' ) . '</a></div>';
 	echo '<style>.cf-preview-banner{position:sticky;top:var(--wp-admin--admin-bar--height,0);z-index:99999;background:#1d2327;color:#fff;padding:8px 16px;font:14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-align:center}.cf-preview-banner a{color:#72aee6;margin-left:8px}#wpadminbar .cf-preview-on>.ab-item{background:#d63638!important;color:#fff!important}</style>';
 	echo '<script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll(".if-item form :is(button,input,textarea,select), .if-request :is(button,textarea), .if-card form :is(button,textarea), .if-complete :is(button)").forEach(function(e){if(e.type!=="hidden"){e.disabled=true;e.title="' . esc_js( __( 'Désactivé pendant l\'aperçu', 'catalogue-formations' ) ) . '";}});});</script>';
 }

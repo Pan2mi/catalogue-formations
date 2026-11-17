@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 2.12.1
+- Aperçu « voir comme un apprenant » : le bandeau propose des liens vers le Catalogue et le Tableau de bord.
+
 ## 2.12.0
 - **Lecteur PDF intégré** (PDF.js, inclus dans l'extension, sans CDN) pour les documents suivis (bloc Gutenberg et widget Elementor) : le PDF s'affiche de la même façon sur ordinateur, téléphone et tablette.
 - Pages l'une sous l'autre, dessinées au fil du défilement, à la largeur du cadre ; barre d'outils : « Page x / n », page précédente / suivante, zoom − / +, « Ajuster », « Plein écran ». Boutons utilisables au clavier, libellés en français.
