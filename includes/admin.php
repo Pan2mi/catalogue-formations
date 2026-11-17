@@ -478,6 +478,16 @@ function if_page_settings() {
 						<label style="display:block;margin:4px 0"><input type="radio" name="if_sections" value="matiere" <?php checked( $cs['sections'], 'matiere' ); ?>> <?php esc_html_e( 'Par matière, puis par niveau', 'catalogue-formations' ); ?></label>
 					</td>
 				</tr>
+				<?php $pdf = if_pdf_settings(); ?>
+				<tr>
+					<th><?php esc_html_e( 'Lecteur PDF', 'catalogue-formations' ); ?></th>
+					<td>
+						<label style="display:block;margin:4px 0"><input type="radio" name="if_pdf_viewer" value="pdfjs" <?php checked( $pdf['viewer'], 'pdfjs' ); ?>> <?php esc_html_e( 'Lecteur intégré (PDF.js, identique sur tous les appareils)', 'catalogue-formations' ); ?></label>
+						<label style="display:block;margin:4px 0"><input type="radio" name="if_pdf_viewer" value="browser" <?php checked( $pdf['viewer'], 'browser' ); ?>> <?php esc_html_e( 'Lecteur du navigateur', 'catalogue-formations' ); ?></label>
+						<label style="display:block;margin:10px 0 4px"><input type="checkbox" name="if_pdf_download" value="1" <?php checked( $pdf['download'] ); ?>> <?php esc_html_e( 'Autoriser le téléchargement et l\'impression', 'catalogue-formations' ); ?></label>
+						<p class="description"><?php esc_html_e( 'Documents suivis (bloc et widget Elementor). Le lecteur du navigateur n\'affiche souvent pas d\'aperçu sur téléphone et tablette. Décoché : les boutons de téléchargement sont masqués aux apprenants (le document reste protégé par l\'accès, mais une personne déterminée peut toujours l\'enregistrer).', 'catalogue-formations' ); ?></p>
+					</td>
+				</tr>
 				<?php $un = get_option( 'if_uninstall', 'keep' ); ?>
 				<tr>
 					<th><?php esc_html_e( 'À la suppression de l\'extension', 'catalogue-formations' ); ?></th>
@@ -509,6 +519,8 @@ function if_admin_handle_settings() {
 	}
 	update_option( 'if_filters', $filters );
 	update_option( 'if_sections', isset( $_POST['if_sections'] ) && 'matiere' === $_POST['if_sections'] ? 'matiere' : 'niveau' );
+	update_option( 'if_pdf_viewer', isset( $_POST['if_pdf_viewer'] ) && 'browser' === $_POST['if_pdf_viewer'] ? 'browser' : 'pdfjs' );
+	update_option( 'if_pdf_download', empty( $_POST['if_pdf_download'] ) ? '0' : '1' );
 	update_option( 'if_uninstall', isset( $_POST['if_uninstall'] ) && in_array( $_POST['if_uninstall'], array( 'data', 'all' ), true ) ? sanitize_key( $_POST['if_uninstall'] ) : 'keep' );
 	wp_safe_redirect( if_admin_url( 'if-settings', array( 'if_done' => 'saved' ) ) );
 	exit;

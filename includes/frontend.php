@@ -21,6 +21,98 @@ function if_front_assets() {
 	wp_register_script( 'cf-video-track', IF_URL . 'assets/video-track.js', array(), IF_VERSION, true );
 	wp_localize_script( 'cf-video-track', 'cfVideo', array( 'ajax' => admin_url( 'admin-ajax.php' ), 'done' => '✔ ' . __( 'Vidéo vue', 'catalogue-formations' ), 'watched' => __( 'Vu : %d %%', 'catalogue-formations' ) ) );
 	wp_add_inline_script( 'cf-video-track', 'window.cfNextLabel = ' . wp_json_encode( __( 'Continuer', 'catalogue-formations' ) ) . ';', 'before' );
+	if_register_pdf_viewer();
+}
+
+/* ---------- Lecteur PDF intégré (PDF.js) ---------- */
+
+/** Script du lecteur : PDF.js (assets/pdfjs, version 4.10.38 « legacy ») est chargé seulement quand un document approche de l'écran. */
+function if_register_pdf_viewer() {
+	if ( wp_script_is( 'cf-pdf-viewer', 'registered' ) ) {
+		return;
+	}
+	wp_register_script( 'cf-pdf-viewer', IF_URL . 'assets/pdf-viewer.js', array(), IF_VERSION, true );
+	wp_localize_script(
+		'cf-pdf-viewer',
+		'cfPdf',
+		array(
+			'lib'    => IF_URL . 'assets/pdfjs/pdf.min.js?ver=4.10.38',
+			'worker' => IF_URL . 'assets/pdfjs/pdf.worker.min.js?ver=4.10.38',
+			'i18n'   => array(
+				'page'    => __( 'Page %1$s / %2$s', 'catalogue-formations' ),
+				'pageAlt' => __( 'Page %1$s sur %2$s du document', 'catalogue-formations' ),
+				'loading' => __( 'Chargement du document…', 'catalogue-formations' ),
+				'error'   => __( 'Le document n\'a pas pu être affiché ici.', 'catalogue-formations' ),
+			),
+		)
+	);
+}
+
+/** Réglages des documents : lecteur (pdfjs | browser) et téléchargement / impression autorisés. */
+function if_pdf_settings() {
+	return array(
+		'viewer'   => 'browser' === get_option( 'if_pdf_viewer', 'pdfjs' ) ? 'browser' : 'pdfjs',
+		'download' => '0' !== (string) get_option( 'if_pdf_download', '1' ),
+	);
+}
+
+/** Lecteur intégré : pages dessinées une sous l'autre, barre d'outils, lien de secours. */
+function if_pdf_viewer_html( $url, $title, $height = 600, $download = true ) {
+	if_register_pdf_viewer();
+	wp_enqueue_script( 'cf-pdf-viewer' );
+	$height = max( 200, (int) $height );
+	$btn    = function ( $act, $label, $text, $extra = '' ) {
+		return '<button type="button" class="cf-pdf__btn" data-act="' . esc_attr( $act ) . '" aria-label="' . esc_attr( $label ) . '" title="' . esc_attr( $label ) . '"' . $extra . '>' . $text . '</button>';
+	};
+	$out  = '<div class="cf-pdf' . ( $download ? '' : ' cf-pdf--noprint' ) . '" data-src="' . esc_url( $url ) . '" style="--cf-pdf-h:' . $height . 'px">';
+	$out .= '<div class="cf-pdf__bar" role="toolbar" aria-label="' . esc_attr( sprintf( __( 'Lecteur PDF : %s', 'catalogue-formations' ), $title ) ) . '" hidden>';
+	$out .= '<span class="cf-pdf__group">';
+	$out .= $btn( 'prev', __( 'Page précédente', 'catalogue-formations' ), '‹' );
+	$out .= '<span class="cf-pdf__page" aria-live="off">' . esc_html( sprintf( __( 'Page %1$s / %2$s', 'catalogue-formations' ), 1, '…' ) ) . '</span>';
+	$out .= $btn( 'next', __( 'Page suivante', 'catalogue-formations' ), '›' );
+	$out .= '</span><span class="cf-pdf__group">';
+	$out .= $btn( 'out', __( 'Dézoomer', 'catalogue-formations' ), '−' );
+	$out .= '<span class="cf-pdf__zoom" aria-live="polite">100 %</span>';
+	$out .= $btn( 'in', __( 'Zoomer', 'catalogue-formations' ), '+' );
+	$out .= $btn( 'fit', __( 'Ajuster à la largeur', 'catalogue-formations' ), esc_html__( 'Ajuster', 'catalogue-formations' ) );
+	$out .= '</span><span class="cf-pdf__group">';
+	$out .= $btn( 'full', __( 'Plein écran', 'catalogue-formations' ), '⛶ <span class="cf-pdf__lbl">' . esc_html__( 'Plein écran', 'catalogue-formations' ) . '</span>', ' aria-pressed="false"' );
+	$out .= '</span></div>';
+	$out .= '<div class="cf-pdf__pages" tabindex="0" role="region" aria-label="' . esc_attr( sprintf( __( 'Document : %s', 'catalogue-formations' ), $title ) ) . '"><p class="cf-pdf__status">' . esc_html__( 'Chargement du document…', 'catalogue-formations' ) . '</p></div>';
+	$out .= '<p class="cf-pdf__fallback" hidden><a class="if-btn if-btn--ghost" href="' . esc_url( $url ) . '" target="_blank" rel="noopener">' . esc_html__( 'Ouvrir le PDF', 'catalogue-formations' ) . '</a></p>';
+	$out .= '<noscript><p><a class="if-btn if-btn--ghost" href="' . esc_url( $url ) . '" target="_blank" rel="noopener">' . esc_html__( 'Ouvrir le PDF', 'catalogue-formations' ) . '</a></p></noscript>';
+	$out .= '</div>';
+	return $out;
+}
+
+/** Adresse pour le lecteur du navigateur : sans barre d'outils (télécharger / imprimer) si c'est interdit. */
+function if_pdf_browser_url( $url, $download ) {
+	return $download ? $url : $url . '#toolbar=0&navpanes=0';
+}
+
+/**
+ * Bloc Fichier de WordPress (dans le bloc « Document suivi ») : aperçu remplacé par le lecteur intégré,
+ * liens de téléchargement retirés si le réglage l'interdit (seulement quand un aperçu reste visible).
+ */
+function if_pdf_filter_file_block( $html, $url, $title ) {
+	$cfg = if_pdf_settings();
+	if ( ! preg_match( '#<object\b[^>]*>.*?</object>#is', $html, $m ) ) {
+		return $html; // pas d'aperçu choisi dans le bloc Fichier : on laisse les liens.
+	}
+	$height = preg_match( '/height:\s*(\d+)px/i', $m[0], $h ) ? (int) $h[1] : 600;
+	if ( 'pdfjs' === $cfg['viewer'] ) {
+		$html = str_replace( $m[0], if_pdf_viewer_html( $url, $title, $height, $cfg['download'] ), $html );
+		$html = str_replace( ' data-wp-interactive="core/file"', '', $html ); // le script du bloc Fichier ne gère plus l'aperçu.
+	} elseif ( ! $cfg['download'] ) {
+		$obj  = preg_replace( '/(\sdata=")([^"#]*)"/i', '$1$2#toolbar=0&amp;navpanes=0"', $m[0], 1 );
+		$html = str_replace( $m[0], $obj, $html );
+	}
+	if ( ! $cfg['download'] ) {
+		// Bouton « Télécharger » retiré, nom du fichier gardé en texte simple.
+		$html = preg_replace( '#<a\b[^>]*class="[^"]*wp-block-file__button[^"]*"[^>]*>.*?</a>#is', '', $html );
+		$html = preg_replace( '#<a\b([^>]*\bid="wp-block-file--media-[^"]*")[^>]*>(.*?)</a>#is', '<span class="cf-pdf-name">$2</span>', $html );
+	}
+	return $html;
 }
 
 /* ---------- Petits éléments réutilisables ---------- */
@@ -257,13 +349,24 @@ function if_render_item( $notion_id, $type, $item, $inner_html = null, $wrapper 
 			// Bloc Fichier de WordPress : ses liens pointent vers l'adresse protégée.
 			$direct = wp_get_attachment_url( (int) $item['attachment_id'] );
 			$safe   = if_pdf_url( $notion_id, $key );
-			echo $direct ? str_replace( array( esc_url( $direct ), $direct ), $safe, $inner_html ) : $inner_html; // phpcs:ignore
+			$html   = $direct ? str_replace( array( esc_url( $direct ), $direct ), $safe, $inner_html ) : $inner_html;
+			echo if_pdf_filter_file_block( $html, $safe, $title ); // phpcs:ignore
 			echo $key ? if_complete_button( $notion_id, $key, $done ) : ''; // phpcs:ignore
 		} elseif ( ! empty( $item['attachment_id'] ) ) {
+			$cfg    = if_pdf_settings();
+			$safe   = if_pdf_url( $notion_id, $key );
+			$height = ! empty( $item['preview_height'] ) ? (int) $item['preview_height'] : 600;
 			if ( ! empty( $item['preview'] ) ) {
-				echo '<iframe class="if-pdf-preview" src="' . esc_url( if_pdf_url( $notion_id, $key ) ) . '" style="height:' . (int) ( ! empty( $item['preview_height'] ) ? $item['preview_height'] : 600 ) . 'px" title="' . esc_attr( $title ) . '"></iframe>';
+				if ( 'pdfjs' === $cfg['viewer'] ) {
+					echo if_pdf_viewer_html( $safe, $title, $height, $cfg['download'] ); // phpcs:ignore
+				} else {
+					echo '<iframe class="if-pdf-preview" src="' . esc_url( if_pdf_browser_url( $safe, $cfg['download'] ) ) . '" style="height:' . $height . 'px" title="' . esc_attr( $title ) . '"></iframe>'; // phpcs:ignore
+				}
 			}
-			echo '<p><a class="if-btn if-btn--ghost" href="' . esc_url( if_pdf_url( $notion_id, $key ) ) . '" target="_blank" rel="noopener">' . esc_html__( 'Ouvrir le PDF', 'catalogue-formations' ) . '</a></p>';
+			// Sans aperçu, le lien reste le seul moyen de lire le document.
+			if ( $cfg['download'] || empty( $item['preview'] ) ) {
+				echo '<p><a class="if-btn if-btn--ghost" href="' . esc_url( if_pdf_browser_url( $safe, $cfg['download'] ) ) . '" target="_blank" rel="noopener">' . esc_html__( 'Ouvrir le PDF', 'catalogue-formations' ) . '</a></p>';
+			}
 			echo $key ? if_complete_button( $notion_id, $key, $done ) : ''; // phpcs:ignore
 		} else {
 			echo '<p class="if-empty-item">' . esc_html__( 'Aucun document choisi.', 'catalogue-formations' ) . '</p>';

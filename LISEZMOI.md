@@ -12,7 +12,7 @@
    - **Catalogue** avec le contenu `[if_catalogue]`
      - Variantes : `[if_catalogue gniveau="college"]` (un seul groupe), `[if_catalogue niveau="6eme"]` (un seul niveau), `filtres="non"` (sans listes déroulantes)
    - **Mon tableau de bord** avec le contenu `[if_tableau_de_bord]`
-4. **Formation → Réglages** : choisir ces 2 pages, l'e-mail des alertes, **les filtres affichés** dans le catalogue (Groupe de niveaux, Niveau, Groupe de matières, Matière) et le **rangement** (par niveau ou par matière d'abord).
+4. **Formation → Réglages** : choisir ces 2 pages, l'e-mail des alertes, **les filtres affichés** dans le catalogue (Groupe de niveaux, Niveau, Groupe de matières, Matière) et le **rangement** (par niveau ou par matière d'abord). **Lecteur PDF** : lecteur intégré (PDF.js, identique sur ordinateur, téléphone et tablette ; par défaut) ou lecteur du navigateur, et « Autoriser le téléchargement et l'impression ».
 5. Ajouter ces pages au menu du site.
 
 ## 3. Créer le catalogue

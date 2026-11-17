@@ -41,7 +41,7 @@ foreach ( array( 'if_access', 'if_progress', 'if_submissions' ) as $cf_t ) {
 }
 
 // Réglages.
-foreach ( array( 'if_alert_email', 'if_answers_migrated', 'if_catalogue_page', 'if_dashboard_page', 'if_db_version', 'if_filters', 'if_groups_migrated', 'if_legacy_converted', 'if_sections', 'if_uninstall' ) as $cf_opt ) {
+foreach ( array( 'if_alert_email', 'if_answers_migrated', 'if_catalogue_page', 'if_dashboard_page', 'if_db_version', 'if_filters', 'if_groups_migrated', 'if_legacy_converted', 'if_pdf_download', 'if_pdf_viewer', 'if_sections', 'if_uninstall' ) as $cf_opt ) {
 	delete_option( $cf_opt );
 }
 

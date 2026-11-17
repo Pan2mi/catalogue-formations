@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 2.12.0
+- **Lecteur PDF intégré** (PDF.js, inclus dans l'extension, sans CDN) pour les documents suivis (bloc Gutenberg et widget Elementor) : le PDF s'affiche de la même façon sur ordinateur, téléphone et tablette.
+- Pages l'une sous l'autre, dessinées au fil du défilement, à la largeur du cadre ; barre d'outils : « Page x / n », page précédente / suivante, zoom − / +, « Ajuster », « Plein écran ». Boutons utilisables au clavier, libellés en français.
+- Si le lecteur ne peut pas se charger : lien « Ouvrir le PDF ».
+- **Formation → Réglages → Lecteur PDF** : « Lecteur intégré » (par défaut) ou « Lecteur du navigateur », et « Autoriser le téléchargement et l'impression » (coché par défaut). Décoché : boutons de téléchargement masqués aux apprenants (l'accès au document reste protégé comme avant).
+
 ## 2.11.6
 - Mises à jour : plus de fausse « nouvelle version disponible » juste après une mise à jour (la version installée est relue).
 
