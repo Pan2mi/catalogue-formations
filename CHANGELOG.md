@@ -1,5 +1,12 @@
 # Journal des versions
 
+## 2.14.0
+- **Filtres instantanés du catalogue** ([if_catalogue]) : changer « Groupe de niveaux », « Niveau », « Groupe de matières » ou « Matière » affiche tout de suite les notions correspondantes, sans recharger la page. Les sections et titres vides sont masqués.
+- Nombre de notions affichées (« 3 notions »), annoncé aux lecteurs d'écran.
+- Quand un groupe est choisi, la liste « Niveau » (ou « Matière ») ne propose plus que les éléments de ce groupe.
+- L'adresse de la page suit les filtres : un rechargement ou un lien partagé garde la sélection. Lien « Réinitialiser » pour tout réafficher.
+- Sans JavaScript, le bouton « Filtrer » fonctionne comme avant.
+
 ## 2.13.2
 - **Réinitialiser l'avancement** d'un apprenant pour une notion : lien « Réinitialiser » dans la page Accès (à côté de « Détail ») et encadré « Réinitialiser l'avancement » dans le détail du Suivi.
 - Deux cases : « Avancement (vidéos, documents, quiz, H5P) » (cochée) et « Réponses aux exercices et corrections » (décochée, fichiers joints supprimés aussi). Confirmation « Cette action est définitive », puis message de confirmation.

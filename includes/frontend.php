@@ -541,6 +541,7 @@ function if_sc_catalogue( $atts ) {
 	echo if_notice(); // phpcs:ignore
 
 	// Listes déroulantes (selon les réglages ; masquées si imposées par le shortcode).
+	$live   = false;
 	$forced = $atts['niveau'] || $atts['matiere'] || $atts['gniveau'] || $atts['gmatiere'];
 	if ( 'non' !== $atts['filtres'] && ! $forced ) {
 		$groups_with_members = function ( $gtax ) {
@@ -568,42 +569,71 @@ function if_sc_catalogue( $atts ) {
 		}
 		$selects = array_filter( $selects, function ( $s ) { return ! empty( $s[2] ); } );
 		if ( $selects ) {
+			$live = true;
 			// Adresse explicite (sinon le formulaire peut partir vers une autre page, ex. dans Playground).
 			$action = get_permalink();
-			echo '<form class="if-filters" method="get" action="' . esc_url( strtok( (string) $action, '?' ) ) . '">';
-			parse_str( (string) wp_parse_url( (string) $action, PHP_URL_QUERY ), $keep );
-			foreach ( $keep as $k => $v ) {
+			$reset  = strtok( (string) $action, '?' );
+			echo '<form class="if-filters" method="get" action="' . esc_url( $reset ) . '" data-if-filters>';
+			parse_str( (string) wp_parse_url( (string) $action, PHP_URL_QUERY ), $keep_q );
+			foreach ( $keep_q as $k => $v ) {
 				if ( is_scalar( $v ) ) {
 					echo '<input type="hidden" name="' . esc_attr( $k ) . '" value="' . esc_attr( $v ) . '">';
 				}
 			}
+			if ( $keep_q ) {
+				$reset = add_query_arg( array_map( 'rawurlencode', array_filter( $keep_q, 'is_scalar' ) ), $reset );
+			}
 			foreach ( $selects as $s ) {
 				echo '<label>' . esc_html( $s[1] ) . '<select name="' . esc_attr( $s[0] ) . '"><option value="">' . esc_html( $s[3] ) . '</option>';
 				foreach ( $s[2] as $t ) {
-					echo '<option value="' . esc_attr( $t->slug ) . '" ' . selected( $f[ $s[0] ], $t->slug, false ) . '>' . esc_html( $t->name ) . '</option>';
+					// Groupes du niveau / de la matière (pour restreindre la liste quand un groupe est choisi).
+					$groups = in_array( $s[0], array( 'niveau', 'matiere' ), true ) ? ' data-groups="' . esc_attr( implode( ' ', if_group_slugs( $t->term_id, $t->taxonomy ) ) ) . '"' : '';
+					echo '<option value="' . esc_attr( $t->slug ) . '"' . $groups . ' ' . selected( $f[ $s[0] ], $t->slug, false ) . '>' . esc_html( $t->name ) . '</option>'; // phpcs:ignore
 				}
 				echo '</select></label>';
 			}
-			echo '<button type="submit" class="if-btn if-btn--small">' . esc_html__( 'Filtrer', 'catalogue-formations' ) . '</button>';
-			if ( array_filter( $f ) ) {
-				echo ' <a class="if-link" href="' . esc_url( strtok( (string) ( $_SERVER['REQUEST_URI'] ?? '' ), '?' ) ) . '">' . esc_html__( 'Tout afficher', 'catalogue-formations' ) . '</a>'; // phpcs:ignore
-			}
+			echo '<button type="submit" class="if-btn if-btn--small if-filters__submit">' . esc_html__( 'Filtrer', 'catalogue-formations' ) . '</button>';
+			echo ' <a class="if-link if-filters__reset" href="' . esc_url( $reset ) . '"' . ( array_filter( $f ) ? '' : ' hidden' ) . '>' . esc_html__( 'Réinitialiser', 'catalogue-formations' ) . '</a>';
 			echo '</form>';
+			wp_enqueue_script( 'if-catalogue-filters', IF_URL . 'assets/catalogue-filters.js', array(), IF_VERSION, true );
+			wp_localize_script(
+				'if-catalogue-filters',
+				'ifCatalogue',
+				array(
+					/* translators: %d : nombre de notions affichées. */
+					'one'  => __( '%d notion', 'catalogue-formations' ),
+					'many' => __( '%d notions', 'catalogue-formations' ),
+				)
+			);
 		}
 	}
 
 	// Ordre des sections : niveau puis matière, ou l'inverse.
+	// Filtres instantanés : toutes les sections sont écrites, celles qui ne correspondent pas sont masquées (hidden).
+	$all_niv = $live ? $niveaux : $sec_niv;
+	$all_mat = $live ? $matieres : $sec_mat;
+	$kept    = array(
+		'if_niveau'  => wp_list_pluck( $sec_niv, 'term_id' ),
+		'if_matiere' => wp_list_pluck( $sec_mat, 'term_id' ),
+	);
 	if ( 'matiere' === $atts['groupe'] ) {
-		$outer = array( $sec_mat, 'if_matiere' );
-		$inner = array( $sec_niv, 'if_niveau' );
+		$outer = array( $all_mat, 'if_matiere' );
+		$inner = array( $all_niv, 'if_niveau' );
 	} else {
-		$outer = array( $sec_niv, 'if_niveau' );
-		$inner = array( $sec_mat, 'if_matiere' );
+		$outer = array( $all_niv, 'if_niveau' );
+		$inner = array( $all_mat, 'if_matiere' );
 	}
+	$attrs = function ( $term ) {
+		$k = 'if_niveau' === $term->taxonomy ? 'niveau' : 'matiere';
+		return array( $k => $term->slug, 'g' . $k => implode( ' ', if_group_slugs( $term->term_id, $term->taxonomy ) ) );
+	};
 
-	$shown = 0;
+	$visible = array();
+	$body    = '';
 	foreach ( $outer[0] as $o ) {
-		$html = '';
+		$html     = '';
+		$o_shown  = false;
+		$o_ok     = in_array( $o->term_id, $kept[ $outer[1] ], false ); // phpcs:ignore
 		foreach ( $inner[0] as $i ) {
 			$q = new WP_Query(
 				array(
@@ -618,21 +648,26 @@ function if_sc_catalogue( $atts ) {
 				)
 			);
 			if ( $q->have_posts() ) {
-				$html .= '<h3 class="if-cat-matiere">' . esc_html( $i->name ) . '</h3><div class="if-grid">';
+				$ok    = $o_ok && in_array( $i->term_id, $kept[ $inner[1] ], false ); // phpcs:ignore
+				$data  = array_merge( $attrs( $o ), $attrs( $i ) );
+				$html .= '<div class="if-cat-block"' . ( $ok ? '' : ' hidden' ) . '><h3 class="if-cat-matiere">' . esc_html( $i->name ) . '</h3><div class="if-grid">';
 				foreach ( $q->posts as $p ) {
-					$html .= if_card( $p );
-					$shown++;
+					$html .= if_card( $p, $data );
+					if ( $ok ) {
+						$visible[ $p->ID ] = true;
+					}
 				}
-				$html .= '</div>';
+				$html .= '</div></div>';
+				$o_shown = $o_shown || $ok;
 			}
 		}
 		if ( $html ) {
-			echo '<section class="if-cat-niveau"><h2>' . esc_html( $o->name ) . '</h2>' . $html . '</section>'; // phpcs:ignore
+			$body .= '<section class="if-cat-niveau"' . ( $o_shown ? '' : ' hidden' ) . '><h2>' . esc_html( $o->name ) . '</h2>' . $html . '</section>';
 		}
 	}
 
-	// Notions sans niveau ou sans matière (pour ne rien oublier).
-	if ( ! array_filter( $f ) ) {
+	// Notions sans niveau ou sans matière (pour ne rien oublier) : seulement sans filtre.
+	if ( $live || ! array_filter( $f ) ) {
 		$q = new WP_Query(
 			array(
 				'post_type'      => 'if_notion',
@@ -647,25 +682,47 @@ function if_sc_catalogue( $atts ) {
 			)
 		);
 		if ( $q->have_posts() ) {
-			echo '<section class="if-cat-niveau"><h2>' . esc_html__( 'Autres notions', 'catalogue-formations' ) . '</h2><div class="if-grid">';
+			$ok    = ! array_filter( $f );
+			$body .= '<section class="if-cat-niveau if-cat-other"' . ( $ok ? '' : ' hidden' ) . '><h2>' . esc_html__( 'Autres notions', 'catalogue-formations' ) . '</h2><div class="if-cat-block"><div class="if-grid">';
 			foreach ( $q->posts as $p ) {
-				echo if_card( $p ); // phpcs:ignore
-				$shown++;
+				$body .= if_card( $p, array( 'other' => 1 ) );
+				if ( $ok ) {
+					$visible[ $p->ID ] = true;
+				}
 			}
-			echo '</div></section>';
+			$body .= '</div></div></section>';
 		}
 	}
 
-	if ( ! $shown ) {
-		echo '<p>' . esc_html__( 'Aucune notion pour ces critères.', 'catalogue-formations' ) . '</p>';
+	$n = count( $visible );
+	if ( $live ) {
+		echo '<p class="if-cat-count" role="status" aria-live="polite">' . esc_html( sprintf( _n( '%d notion', '%d notions', $n, 'catalogue-formations' ), $n ) ) . '</p>';
 	}
+	echo '<div class="if-cat-results">' . $body . '</div>'; // phpcs:ignore
+	echo '<p class="if-cat-empty"' . ( $n ? ' hidden' : '' ) . '>' . esc_html__( 'Aucune notion pour ces critères.', 'catalogue-formations' ) . '</p>';
 	return ob_get_clean();
 }
 
-function if_card( $post ) {
+/** Slugs des groupes d'un niveau ou d'une matière. */
+function if_group_slugs( $term_id, $tax ) {
+	$out = array();
+	foreach ( if_groups_of( $term_id ) as $gid ) {
+		$g = get_term( $gid, if_group_tax( $tax ) );
+		if ( $g && ! is_wp_error( $g ) ) {
+			$out[] = $g->slug;
+		}
+	}
+	return $out;
+}
+
+function if_card( $post, $data = array() ) {
 	$user  = if_viewer_id();
 	$state = $user ? if_user_access( $user, $post->ID )['state'] : 'none';
-	$html  = '<article class="if-card">';
+	$attrs = ' data-id="' . (int) $post->ID . '"';
+	foreach ( $data as $k => $v ) {
+		$attrs .= ' data-' . esc_attr( $k ) . '="' . esc_attr( $v ) . '"';
+	}
+	$html = '<article class="if-card"' . $attrs . '>';
 	if ( has_post_thumbnail( $post ) ) {
 		$html .= get_the_post_thumbnail( $post, 'medium', array( 'class' => 'if-card__img' ) );
 	}

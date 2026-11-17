@@ -40,6 +40,10 @@
 .if-filters label { display: grid; gap: 4px; font-weight: 600; }
 .if-cat-niveau { margin-bottom: 32px; }
 .if-cat-matiere { margin: 16px 0 8px; }
+.if-cat-niveau[hidden], .if-cat-block[hidden], .if-card[hidden], .if-cat-empty[hidden], .if-filters__reset[hidden] { display: none !important; }
+.if-filters--live .if-filters__submit { display: none; }
+.if-filters__reset { align-self: center; }
+.if-cat-count { margin: -12px 0 16px; color: #555; font-weight: 600; }
 .if-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
 .if-card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px; background: #fff; }
 .if-card h4 { margin: 0; }
