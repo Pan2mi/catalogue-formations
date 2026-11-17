@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 2.12.2
+- Lecteur PDF : la barre d'outils garde sa taille compacte quel que soit le thème (Astra, Elementor…).
+
 ## 2.12.1
 - Aperçu « voir comme un apprenant » : le bandeau propose des liens vers le Catalogue et le Tableau de bord.
 

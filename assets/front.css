@@ -101,6 +101,8 @@
 .cf-pdf__bar[hidden] { display: none; }
 .cf-pdf__group { display: inline-flex; align-items: center; gap: 4px; }
 .cf-pdf__btn { min-width: 40px; height: 40px; padding: 0 10px; border: 1px solid #c3cad4; border-radius: 6px; background: #fff; color: #1a4f8b; font: inherit; font-weight: 600; font-size: 1.05rem; line-height: 1; cursor: pointer; touch-action: manipulation; }
+/* Protège la barre contre les styles de bouton du thème (Astra, Elementor…). */
+.cf-pdf .cf-pdf__bar .cf-pdf__btn { margin: 0 !important; padding: 0 10px !important; height: 40px !important; min-height: 0 !important; line-height: 1 !important; box-shadow: none !important; text-transform: none !important; letter-spacing: normal !important; width: auto !important; }
 .cf-pdf__btn:hover { background: #eef3fa; }
 .cf-pdf__btn:focus-visible { outline: 3px solid #f2b705; outline-offset: 1px; }
 .cf-pdf__btn:disabled { opacity: .4; cursor: default; }
