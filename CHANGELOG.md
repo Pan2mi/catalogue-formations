@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 2.11.6
+- Mises à jour : plus de fausse « nouvelle version disponible » juste après une mise à jour (la version installée est relue).
+
 ## 2.11.5
 - Tableau de bord apprenant : « Mes exercices » n'affiche plus qu'une ligne par exercice (la réponse la plus récente).
 

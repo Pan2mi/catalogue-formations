@@ -92,7 +92,9 @@ function if_updater_check( $transient ) {
 		return $transient;
 	}
 	$rel = if_updater_release();
-	if ( $rel && $rel['version'] && $rel['package'] && version_compare( $rel['version'], IF_VERSION, '>' ) ) {
+	// Version réellement installée (juste après une mise à jour, IF_VERSION est encore l'ancienne).
+	$installed = isset( $transient->checked[ if_updater_basename() ] ) ? $transient->checked[ if_updater_basename() ] : IF_VERSION;
+	if ( $rel && $rel['version'] && $rel['package'] && version_compare( $rel['version'], $installed, '>' ) ) {
 		$transient->response[ if_updater_basename() ] = (object) array(
 			'slug'        => 'catalogue-formations',
 			'plugin'      => if_updater_basename(),
@@ -106,7 +108,7 @@ function if_updater_check( $transient ) {
 			'id'          => 'github.com/' . IF_GITHUB_REPO,
 			'slug'        => 'catalogue-formations',
 			'plugin'      => if_updater_basename(),
-			'new_version' => IF_VERSION,
+			'new_version' => $installed,
 			'package'     => '',
 			'url'         => 'https://github.com/' . IF_GITHUB_REPO,
 		);
