@@ -1,5 +1,10 @@
 # Journal des versions
 
+## 2.13.2
+- **Réinitialiser l'avancement** d'un apprenant pour une notion : lien « Réinitialiser » dans la page Accès (à côté de « Détail ») et encadré « Réinitialiser l'avancement » dans le détail du Suivi.
+- Deux cases : « Avancement (vidéos, documents, quiz, H5P) » (cochée) et « Réponses aux exercices et corrections » (décochée, fichiers joints supprimés aussi). Confirmation « Cette action est définitive », puis message de confirmation.
+- La notion repart de zéro : les contenus se verrouillent à nouveau selon le parcours et les conditions. L'accès et ses dates ne changent pas. Les notes d'exercices suivent les réponses (gardées si les réponses sont gardées).
+
 ## 2.13.1
 - **Durée estimée** d'une notion : champ libre (ex. « 45 min », « 2 h ») dans l'encadré « Parcours » de l'éditeur.
 - Affichée sur la notion (« ⏱ Durée : 45 min » à côté du niveau et de la matière), sur la carte du catalogue et dans « Mes notions » du tableau de bord apprenant. Vide : rien n'est affiché.

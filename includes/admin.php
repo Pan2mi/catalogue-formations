@@ -13,6 +13,7 @@ add_action( 'admin_post_if_admin_refuse', 'if_admin_handle_refuse' );
 add_action( 'admin_post_if_admin_delete', 'if_admin_handle_delete' );
 add_action( 'admin_post_if_admin_correct', 'if_admin_handle_correct' );
 add_action( 'admin_post_if_admin_settings', 'if_admin_handle_settings' );
+add_action( 'admin_post_if_admin_reset', 'if_admin_handle_reset' );
 
 /** Droit nécessaire pour gérer la formation (administrateurs et éditeurs par défaut). */
 function if_cap() {
@@ -51,11 +52,15 @@ function if_admin_notice() {
 		'deleted'   => __( 'Accès supprimé.', 'catalogue-formations' ),
 		'corrected' => __( 'Correction envoyée à l\'apprenant.', 'catalogue-formations' ),
 		'saved'     => __( 'Réglages enregistrés.', 'catalogue-formations' ),
+		'reset'     => __( 'Avancement réinitialisé (vidéos, documents, quiz, H5P). Les réponses aux exercices sont conservées.', 'catalogue-formations' ),
+		'reset_all' => __( 'Avancement réinitialisé, réponses aux exercices et corrections supprimées.', 'catalogue-formations' ),
+		'reset_sub' => __( 'Réponses aux exercices et corrections supprimées. Le reste de l\'avancement est conservé.', 'catalogue-formations' ),
+		'reset_none' => __( 'Erreur : cochez au moins un élément à réinitialiser.', 'catalogue-formations' ),
 		'dates'     => __( 'Erreur : la date de fin doit être après la date de début.', 'catalogue-formations' ),
 		'missing'   => __( 'Erreur : choisissez un utilisateur, une notion et les deux dates.', 'catalogue-formations' ),
 	);
 	$k     = sanitize_key( wp_unslash( $_GET['if_done'] ) ); // phpcs:ignore
-	$class = in_array( $k, array( 'dates', 'missing' ), true ) ? 'notice-error' : 'notice-success';
+	$class = in_array( $k, array( 'dates', 'missing', 'reset_none' ), true ) ? 'notice-error' : 'notice-success';
 	if ( isset( $msgs[ $k ] ) ) {
 		echo '<div class="notice ' . esc_attr( $class ) . ' is-dismissible"><p>' . esc_html( $msgs[ $k ] ) . '</p></div>';
 	}
@@ -211,6 +216,7 @@ function if_page_access() {
 					<td>
 						<a href="<?php echo esc_url( if_admin_url( 'if-access', array( 'edit' => $r->id ) ) . '#if-grant' ); ?>"><?php esc_html_e( 'Modifier les dates', 'catalogue-formations' ); ?></a> |
 						<a href="<?php echo esc_url( if_admin_url( 'if-progress', array( 'user' => $r->user_id, 'notion' => $r->notion_id ) ) ); ?>"><?php esc_html_e( 'Détail', 'catalogue-formations' ); ?></a> |
+						<a href="<?php echo esc_url( if_admin_url( 'if-progress', array( 'user' => $r->user_id, 'notion' => $r->notion_id, 'reset' => 1 ) ) . '#if-reset' ); ?>"><?php esc_html_e( 'Réinitialiser', 'catalogue-formations' ); ?></a> |
 						<a class="if-danger" href="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'if_admin_delete', 'access_id' => $r->id ), admin_url( 'admin-post.php' ) ), 'if_admin_delete' ) ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Supprimer cet accès ?', 'catalogue-formations' ) ); ?>');"><?php esc_html_e( 'Supprimer', 'catalogue-formations' ); ?></a>
 					</td>
 				</tr>
@@ -287,6 +293,7 @@ function if_page_progress() {
 	$f_user   = isset( $_GET['user'] ) ? absint( $_GET['user'] ) : 0; // phpcs:ignore
 	$f_notion = isset( $_GET['notion'] ) ? absint( $_GET['notion'] ) : 0; // phpcs:ignore
 	echo '<div class="wrap if-admin"><h1>' . esc_html__( 'Suivi des apprenants', 'catalogue-formations' ) . '</h1>';
+	if_admin_notice();
 
 	// Détail d'un apprenant sur une notion.
 	if ( $f_user && $f_notion ) {
@@ -309,7 +316,9 @@ function if_page_progress() {
 			}
 			echo '<tr><td>' . esc_html( if_type_label( $it['type'] ) ) . '</td><td>' . esc_html( $it['title'] ) . '</td><td>' . wp_kses_post( $etat ) . '</td></tr>';
 		}
-		echo '</tbody></table></div>';
+		echo '</tbody></table>';
+		if_reset_form( $f_user, $f_notion, ! empty( $_GET['reset'] ) ); // phpcs:ignore
+		echo '</div>';
 		return;
 	}
 
@@ -343,6 +352,92 @@ function if_page_progress() {
 		echo '</tr>';
 	}
 	echo '</tbody></table></div></div>';
+}
+
+/* ================= Réinitialiser l'avancement ================= */
+
+/** Formulaire « Réinitialiser l'avancement » (page Suivi, détail d'un apprenant sur une notion). */
+function if_reset_form( $user_id, $notion_id, $open = false ) {
+	$subs = count( if_user_submissions( $user_id, $notion_id ) );
+	echo '<details id="if-reset" class="if-card-admin if-reset"' . ( $open ? ' open' : '' ) . '><summary><strong>' . esc_html__( 'Réinitialiser l\'avancement', 'catalogue-formations' ) . '</strong></summary>';
+	echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" onsubmit="return confirm(\'' . esc_js( sprintf( __( 'Réinitialiser l\'avancement de %1$s pour « %2$s » ? Cette action est définitive.', 'catalogue-formations' ), if_user_name( $user_id ), get_the_title( $notion_id ) ) ) . '\');">';
+	echo '<input type="hidden" name="action" value="if_admin_reset"><input type="hidden" name="user_id" value="' . (int) $user_id . '"><input type="hidden" name="notion_id" value="' . (int) $notion_id . '">';
+	wp_nonce_field( 'if_admin_reset_' . (int) $user_id . '_' . (int) $notion_id );
+	echo '<p>' . esc_html( sprintf( __( 'Effacer ce que %1$s a fait dans « %2$s » : la notion repart de zéro, les contenus se verrouillent à nouveau selon le parcours et les conditions. L\'accès et ses dates ne changent pas.', 'catalogue-formations' ), if_user_name( $user_id ), get_the_title( $notion_id ) ) ) . '</p>';
+	echo '<fieldset><legend class="screen-reader-text">' . esc_html__( 'Éléments à réinitialiser', 'catalogue-formations' ) . '</legend>';
+	echo '<label style="display:block;margin:4px 0"><input type="checkbox" name="reset_progress" value="1" checked> ' . esc_html__( 'Avancement (vidéos, documents, quiz, H5P)', 'catalogue-formations' ) . '</label>';
+	echo '<label style="display:block;margin:4px 0"><input type="checkbox" name="reset_submissions" value="1"> ' . esc_html__( 'Réponses aux exercices et corrections', 'catalogue-formations' ) . ' <span class="description">(' . esc_html( sprintf( _n( '%d exercice rendu, fichiers joints compris', '%d exercices rendus, fichiers joints compris', $subs, 'catalogue-formations' ), $subs ) ) . ')</span></label>';
+	echo '</fieldset>';
+	echo '<p class="if-danger"><strong>' . esc_html__( 'Cette action est définitive.', 'catalogue-formations' ) . '</strong></p>';
+	echo '<p><button class="button button-primary">' . esc_html__( 'Réinitialiser', 'catalogue-formations' ) . '</button></p>';
+	echo '</form></details>';
+}
+
+/**
+ * Efface l'avancement d'un apprenant pour une notion.
+ * $progress : vidéos, documents, quiz (dernier essai compris), H5P ; $submissions : réponses, corrections et fichiers joints.
+ */
+function if_reset_progress( $user_id, $notion_id, $progress = true, $submissions = false ) {
+	global $wpdb;
+	$user_id   = (int) $user_id;
+	$notion_id = (int) $notion_id;
+	if ( ! $user_id || ! $notion_id ) {
+		return 0;
+	}
+	$count = 0;
+	$st    = if_table( 'submissions' );
+	$pt    = if_table( 'progress' );
+	// Notes des exercices (rangées aussi dans l'avancement) : suivent les réponses.
+	$ex_keys = array_unique(
+		array_merge(
+			wp_list_pluck( wp_list_filter( if_get_items( $notion_id, true ), array( 'type' => 'exercise' ) ), 'key' ),
+			$wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT exercise_key FROM $st WHERE user_id = %d AND notion_id = %d", $user_id, $notion_id ) ) // phpcs:ignore
+		)
+	);
+	$in = $ex_keys ? implode( ',', array_fill( 0, count( $ex_keys ), '%s' ) ) : '';
+	if ( $progress ) {
+		if ( $submissions || ! $in ) {
+			$count += (int) $wpdb->delete( $pt, array( 'user_id' => $user_id, 'notion_id' => $notion_id ) );
+		} else {
+			$count += (int) $wpdb->query( $wpdb->prepare( "DELETE FROM $pt WHERE user_id = %d AND notion_id = %d AND item_key NOT IN ($in)", array_merge( array( $user_id, $notion_id ), $ex_keys ) ) ); // phpcs:ignore
+		}
+		$count += (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->usermeta} WHERE user_id = %d AND meta_key LIKE %s", $user_id, $wpdb->esc_like( '_if_quiz_' . $notion_id . '_' ) . '%' ) ); // phpcs:ignore
+		wp_cache_delete( $user_id, 'user_meta' );
+	}
+	if ( $submissions ) {
+		$t = $st;
+		if ( ! $progress && $in ) {
+			$count += (int) $wpdb->query( $wpdb->prepare( "DELETE FROM $pt WHERE user_id = %d AND notion_id = %d AND item_key IN ($in)", array_merge( array( $user_id, $notion_id ), $ex_keys ) ) ); // phpcs:ignore
+		}
+		// Fichiers joints aux réponses (comme pour l'effacement des données personnelles).
+		foreach ( $wpdb->get_col( $wpdb->prepare( "SELECT file_id FROM $t WHERE user_id = %d AND notion_id = %d AND file_id IS NOT NULL AND file_id > 0", $user_id, $notion_id ) ) as $file_id ) { // phpcs:ignore
+			if ( wp_delete_attachment( (int) $file_id, true ) ) {
+				$count++;
+			}
+		}
+		$count += (int) $wpdb->delete( $t, array( 'user_id' => $user_id, 'notion_id' => $notion_id ) );
+	}
+	do_action( 'if_progress_reset', $user_id, $notion_id, $progress, $submissions );
+	return $count;
+}
+
+function if_admin_handle_reset() {
+	if ( ! current_user_can( if_cap() ) ) {
+		wp_die( esc_html__( 'Action non autorisée.', 'catalogue-formations' ) );
+	}
+	$user_id   = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0;
+	$notion_id = isset( $_POST['notion_id'] ) ? absint( $_POST['notion_id'] ) : 0;
+	check_admin_referer( 'if_admin_reset_' . $user_id . '_' . $notion_id );
+	$prog = ! empty( $_POST['reset_progress'] );
+	$subs = ! empty( $_POST['reset_submissions'] );
+	$args = array( 'user' => $user_id, 'notion' => $notion_id );
+	if ( ! $prog && ! $subs ) {
+		wp_safe_redirect( if_admin_url( 'if-progress', $args + array( 'reset' => 1, 'if_done' => 'reset_none' ) ) . '#if-reset' );
+		exit;
+	}
+	if_reset_progress( $user_id, $notion_id, $prog, $subs );
+	wp_safe_redirect( if_admin_url( 'if-progress', $args + array( 'if_done' => $prog ? ( $subs ? 'reset_all' : 'reset' ) : 'reset_sub' ) ) );
+	exit;
 }
 
 /* ================= Page « Corrections » ================= */
