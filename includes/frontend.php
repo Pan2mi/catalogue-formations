@@ -318,6 +318,10 @@ function if_render_item( $notion_id, $type, $item, $inner_html = null, $wrapper 
 				}
 			}
 		}
+		// Réglage « Cacher les contenus » : seule la présentation de la notion reste visible.
+		if ( 'hidden' === if_locked_display( $notion_id ) ) {
+			return '';
+		}
 		$open = $wrapper ? '<section ' . str_replace( 'if-item ', 'if-item if-item--locked ', $wrapper ) . '>' : '<section class="if-item if-item--locked">';
 		return $open . '<h3>🔒 ' . esc_html( $title ) . '</h3><p>' . esc_html( sprintf( __( '%s disponible avec l\'accès à cette notion.', 'catalogue-formations' ), if_type_label( $type ) ) ) . '</p></section>';
 	}

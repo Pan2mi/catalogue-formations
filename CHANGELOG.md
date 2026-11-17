@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 2.13.0
+- « Avant l'accès » : choisir ce que voit une personne sans accès — contenus verrouillés (titre + cadenas, comme avant) ou contenus cachés (seule la présentation de la notion reste visible). Réglage par défaut dans Réglages, modifiable notion par notion (encadré « Parcours »).
+
 ## 2.12.3
 - Lecteur PDF : sur grand écran, le lecteur prend toute la largeur ; nom du fichier et bouton Télécharger en dessous.
 

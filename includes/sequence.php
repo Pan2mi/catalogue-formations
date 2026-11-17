@@ -282,6 +282,22 @@ function if_sequence_metabox_render( $post ) {
 	wp_nonce_field( 'if_sequence_' . $post->ID, 'if_sequence_nonce' );
 	echo '<label><input type="checkbox" name="if_sequential" value="1" ' . checked( if_is_sequential( $post->ID ), true, false ) . '> <strong>' . esc_html__( 'Parcours dans l\'ordre', 'catalogue-formations' ) . '</strong></label>';
 	echo '<p class="description">' . esc_html__( 'Chaque contenu suivi se débloque quand le précédent est terminé. Sur chaque contenu : « Toujours accessible », « Masqué aux apprenants » et conditions d\'accès (panneau « Restrictions d\'accès » du bloc).', 'catalogue-formations' ) . '</p>';
+	$ld = get_post_meta( $post->ID, '_if_locked_display', true );
+	echo '<p style="margin-top:12px"><label for="if_locked_display"><strong>' . esc_html__( 'Avant l\'accès', 'catalogue-formations' ) . '</strong></label><br><select id="if_locked_display" name="if_locked_display" style="width:100%">';
+	$def = 'hidden' === get_option( 'if_locked_display', 'locked' ) ? __( 'contenus cachés', 'catalogue-formations' ) : __( 'contenus verrouillés', 'catalogue-formations' );
+	foreach ( array( '' => sprintf( __( 'Réglage du site (%s)', 'catalogue-formations' ), $def ), 'locked' => __( 'Montrer les contenus verrouillés', 'catalogue-formations' ), 'hidden' => __( 'Cacher les contenus', 'catalogue-formations' ) ) as $v => $l ) {
+		echo '<option value="' . esc_attr( $v ) . '" ' . selected( $ld, $v, false ) . '>' . esc_html( $l ) . '</option>';
+	}
+	echo '</select></p>';
+}
+
+/** Avant l'accès : 'locked' (titres + cadenas) ou 'hidden' (contenus cachés). */
+function if_locked_display( $notion_id ) {
+	$v = get_post_meta( $notion_id, '_if_locked_display', true );
+	if ( 'locked' === $v || 'hidden' === $v ) {
+		return $v;
+	}
+	return 'hidden' === get_option( 'if_locked_display', 'locked' ) ? 'hidden' : 'locked';
 }
 
 function if_sequence_save( $post_id ) {
@@ -292,5 +308,11 @@ function if_sequence_save( $post_id ) {
 		update_post_meta( $post_id, '_if_sequential', 1 );
 	} else {
 		delete_post_meta( $post_id, '_if_sequential' );
+	}
+	$ld = isset( $_POST['if_locked_display'] ) ? sanitize_key( wp_unslash( $_POST['if_locked_display'] ) ) : '';
+	if ( in_array( $ld, array( 'locked', 'hidden' ), true ) ) {
+		update_post_meta( $post_id, '_if_locked_display', $ld );
+	} else {
+		delete_post_meta( $post_id, '_if_locked_display' );
 	}
 }

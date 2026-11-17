@@ -478,6 +478,15 @@ function if_page_settings() {
 						<label style="display:block;margin:4px 0"><input type="radio" name="if_sections" value="matiere" <?php checked( $cs['sections'], 'matiere' ); ?>> <?php esc_html_e( 'Par matière, puis par niveau', 'catalogue-formations' ); ?></label>
 					</td>
 				</tr>
+				<tr>
+					<th><?php esc_html_e( 'Avant l\'accès', 'catalogue-formations' ); ?></th>
+					<td>
+						<?php $ld = get_option( 'if_locked_display', 'locked' ); ?>
+						<label style="display:block;margin:4px 0"><input type="radio" name="if_locked_display" value="locked" <?php checked( $ld, 'locked' ); ?>> <?php esc_html_e( 'Montrer les contenus verrouillés (titre + cadenas)', 'catalogue-formations' ); ?></label>
+						<label style="display:block;margin:4px 0"><input type="radio" name="if_locked_display" value="hidden" <?php checked( $ld, 'hidden' ); ?>> <?php esc_html_e( 'Cacher les contenus (seule la présentation de la notion reste visible)', 'catalogue-formations' ); ?></label>
+						<p class="description"><?php esc_html_e( 'Ce que voit une personne qui n\'a pas (ou plus) accès à la notion. Choix par défaut : chaque notion peut le changer (encadré « Parcours »).', 'catalogue-formations' ); ?></p>
+					</td>
+				</tr>
 				<?php $pdf = if_pdf_settings(); ?>
 				<tr>
 					<th><?php esc_html_e( 'Lecteur PDF', 'catalogue-formations' ); ?></th>
@@ -519,6 +528,7 @@ function if_admin_handle_settings() {
 	}
 	update_option( 'if_filters', $filters );
 	update_option( 'if_sections', isset( $_POST['if_sections'] ) && 'matiere' === $_POST['if_sections'] ? 'matiere' : 'niveau' );
+	update_option( 'if_locked_display', isset( $_POST['if_locked_display'] ) && 'hidden' === $_POST['if_locked_display'] ? 'hidden' : 'locked' );
 	update_option( 'if_pdf_viewer', isset( $_POST['if_pdf_viewer'] ) && 'browser' === $_POST['if_pdf_viewer'] ? 'browser' : 'pdfjs' );
 	update_option( 'if_pdf_download', empty( $_POST['if_pdf_download'] ) ? '0' : '1' );
 	update_option( 'if_uninstall', isset( $_POST['if_uninstall'] ) && in_array( $_POST['if_uninstall'], array( 'data', 'all' ), true ) ? sanitize_key( $_POST['if_uninstall'] ) : 'keep' );
