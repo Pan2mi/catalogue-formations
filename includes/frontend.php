@@ -619,7 +619,14 @@ function if_sc_dashboard() {
 	$subs = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $t WHERE user_id = %d ORDER BY submitted_at DESC LIMIT 20", $user ) ); // phpcs:ignore
 	if ( $subs ) {
 		echo '<h2>' . esc_html__( 'Mes exercices', 'catalogue-formations' ) . '</h2><ul class="if-list">';
+		$seen = array();
 		foreach ( $subs as $s ) {
+			// Une seule ligne par exercice : la réponse la plus récente.
+			$k = $s->notion_id . '|' . $s->exercise_key;
+			if ( isset( $seen[ $k ] ) ) {
+				continue;
+			}
+			$seen[ $k ] = true;
 			$ex    = if_find_item( $s->notion_id, $s->exercise_key, 'exercise' );
 			$label = if_submission_label( $s );
 			echo '<li><a href="' . esc_url( get_permalink( $s->notion_id ) . '#' . $s->exercise_key ) . '">' . esc_html( get_the_title( $s->notion_id ) . ' — ' . ( $ex ? $ex['title'] : '' ) ) . '</a> · ' . esc_html( $label ) . '</li>';

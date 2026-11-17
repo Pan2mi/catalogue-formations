@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 2.11.5
+- Tableau de bord apprenant : « Mes exercices » n'affiche plus qu'une ligne par exercice (la réponse la plus récente).
+
 ## 2.11.4
 - « Vérifier à nouveau » (Tableau de bord > Mises à jour) interroge GitHub immédiatement, sans attendre le cache de 6 h.
 
