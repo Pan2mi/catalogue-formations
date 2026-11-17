@@ -1,5 +1,10 @@
 # Journal des versions
 
+## 2.13.1
+- **Durée estimée** d'une notion : champ libre (ex. « 45 min », « 2 h ») dans l'encadré « Parcours » de l'éditeur.
+- Affichée sur la notion (« ⏱ Durée : 45 min » à côté du niveau et de la matière), sur la carte du catalogue et dans « Mes notions » du tableau de bord apprenant. Vide : rien n'est affiché.
+- Copiée avec la notion lors d'une duplication ; fonctionne aussi pour les notions Elementor.
+
 ## 2.13.0
 - « Avant l'accès » : choisir ce que voit une personne sans accès — contenus verrouillés (titre + cadenas, comme avant) ou contenus cachés (seule la présentation de la notion reste visible). Réglage par défaut dans Réglages, modifiable notion par notion (encadré « Parcours »).
 

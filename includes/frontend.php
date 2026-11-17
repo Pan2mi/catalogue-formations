@@ -224,7 +224,11 @@ function if_notion_content( $content ) {
 	$can_view  = $user && if_user_can_view( $user, $notion_id );
 
 	$meta  = '<p class="if-meta"><strong>' . esc_html__( 'Niveau', 'catalogue-formations' ) . ' :</strong> ' . esc_html( if_terms_text( $notion_id, 'if_niveau' ) );
-	$meta .= ' · <strong>' . esc_html__( 'Matière', 'catalogue-formations' ) . ' :</strong> ' . esc_html( if_terms_text( $notion_id, 'if_matiere' ) ) . '</p>';
+	$meta .= ' · <strong>' . esc_html__( 'Matière', 'catalogue-formations' ) . ' :</strong> ' . esc_html( if_terms_text( $notion_id, 'if_matiere' ) );
+	if ( '' !== if_duration( $notion_id ) ) {
+		$meta .= ' · <span class="if-duration">⏱ <strong>' . esc_html__( 'Durée', 'catalogue-formations' ) . ' :</strong> ' . esc_html( if_duration( $notion_id ) ) . '</span>';
+	}
+	$meta .= '</p>';
 	$top   = if_notice() . $meta . ( $can_view ? if_summary_box( $notion_id, $user ) : if_access_box( $notion_id, $user ) );
 
 	// Contenus placés dans la page (blocs ou Elementor) : ils s'affichent eux-mêmes, verrouillés si besoin.
@@ -667,6 +671,9 @@ function if_card( $post ) {
 	}
 	$html .= '<h4><a href="' . esc_url( get_permalink( $post ) ) . '">' . esc_html( get_the_title( $post ) ) . '</a></h4>';
 	$html .= '<p class="if-card__tags">' . esc_html( if_terms_text( $post->ID, 'if_niveau' ) . ' · ' . if_terms_text( $post->ID, 'if_matiere' ) ) . '</p>';
+	if ( '' !== if_duration( $post->ID ) ) {
+		$html .= '<p class="if-card__duration">⏱ ' . esc_html( sprintf( __( 'Durée : %s', 'catalogue-formations' ), if_duration( $post->ID ) ) ) . '</p>';
+	}
 	$html .= '<p>' . esc_html( wp_trim_words( get_the_excerpt( $post ), 25 ) ) . '</p>';
 	if ( $user ) {
 		$html .= '<p>' . if_badge( $state ) . '</p>';
@@ -712,7 +719,7 @@ function if_sc_dashboard() {
 			$p     = if_progress( $user, $r->notion_id );
 			?>
 			<tr>
-				<td data-label="<?php esc_attr_e( 'Notion', 'catalogue-formations' ); ?>"><a href="<?php echo esc_url( get_permalink( $r->notion_id ) ); ?>"><?php echo esc_html( get_the_title( $r->notion_id ) ); ?></a></td>
+				<td data-label="<?php esc_attr_e( 'Notion', 'catalogue-formations' ); ?>"><a href="<?php echo esc_url( get_permalink( $r->notion_id ) ); ?>"><?php echo esc_html( get_the_title( $r->notion_id ) ); ?></a><?php if ( '' !== if_duration( $r->notion_id ) ) : ?><br><small class="if-duration">⏱ <?php echo esc_html( if_duration( $r->notion_id ) ); ?></small><?php endif; ?></td>
 				<td data-label="<?php esc_attr_e( 'Période', 'catalogue-formations' ); ?>"><?php echo 'active' === $r->status ? esc_html( if_date( $r->date_start ) . ' → ' . if_date( $r->date_end ) ) : '—'; ?></td>
 				<td data-label="<?php esc_attr_e( 'État', 'catalogue-formations' ); ?>"><?php echo if_badge( $state ); // phpcs:ignore ?></td>
 				<td data-label="<?php esc_attr_e( 'Avancement', 'catalogue-formations' ); ?>"><?php echo 'pending' === $state || 'refused' === $state ? '—' : if_progress_bar( $p ); // phpcs:ignore ?></td>

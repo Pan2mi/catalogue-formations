@@ -289,6 +289,14 @@ function if_sequence_metabox_render( $post ) {
 		echo '<option value="' . esc_attr( $v ) . '" ' . selected( $ld, $v, false ) . '>' . esc_html( $l ) . '</option>';
 	}
 	echo '</select></p>';
+	echo '<p style="margin-top:12px"><label for="if_duration"><strong>' . esc_html__( 'Durée estimée', 'catalogue-formations' ) . '</strong></label><br>';
+	echo '<input type="text" id="if_duration" name="if_duration" maxlength="40" style="width:100%" value="' . esc_attr( if_duration( $post->ID ) ) . '" placeholder="' . esc_attr__( 'ex. 45 min, 2 h', 'catalogue-formations' ) . '"></p>';
+	echo '<p class="description">' . esc_html__( 'Affichée sur la notion, dans le catalogue et le tableau de bord. Vide : non affichée.', 'catalogue-formations' ) . '</p>';
+}
+
+/** Durée estimée de la notion (texte libre, ex. « 45 min »), ou chaîne vide. */
+function if_duration( $notion_id ) {
+	return trim( (string) get_post_meta( $notion_id, '_if_duration', true ) );
 }
 
 /** Avant l'accès : 'locked' (titres + cadenas) ou 'hidden' (contenus cachés). */
@@ -314,5 +322,11 @@ function if_sequence_save( $post_id ) {
 		update_post_meta( $post_id, '_if_locked_display', $ld );
 	} else {
 		delete_post_meta( $post_id, '_if_locked_display' );
+	}
+	$du = isset( $_POST['if_duration'] ) ? mb_substr( sanitize_text_field( wp_unslash( $_POST['if_duration'] ) ), 0, 40 ) : '';
+	if ( '' !== $du ) {
+		update_post_meta( $post_id, '_if_duration', $du );
+	} else {
+		delete_post_meta( $post_id, '_if_duration' );
 	}
 }
