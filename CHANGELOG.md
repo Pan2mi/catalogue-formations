@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 2.11.3
+- Extensions : le lien « Activer les mises à jour auto » apparaît aussi pour Catalogue de formations (mises à jour depuis GitHub).
+
 ## 2.11.2
 - Exercices : « Déposé le … à … » pour le premier envoi et « Modifié le … à … » si l'apprenant renvoie une réponse (comme Moodle). Visible par l'apprenant et dans la page de correction.
 

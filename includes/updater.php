@@ -96,6 +96,16 @@ function if_updater_check( $transient ) {
 			'package'     => $rel['package'],
 			'url'         => $rel['url'],
 		);
+	} else {
+		// À jour : WordPress affiche alors le lien « Activer les mises à jour auto ».
+		$transient->no_update[ if_updater_basename() ] = (object) array(
+			'id'          => 'github.com/' . IF_GITHUB_REPO,
+			'slug'        => 'catalogue-formations',
+			'plugin'      => if_updater_basename(),
+			'new_version' => IF_VERSION,
+			'package'     => '',
+			'url'         => 'https://github.com/' . IF_GITHUB_REPO,
+		);
 	}
 	return $transient;
 }
