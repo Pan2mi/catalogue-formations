@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 2.11.2
+- Exercices : « Déposé le … à … » pour le premier envoi et « Modifié le … à … » si l'apprenant renvoie une réponse (comme Moodle). Visible par l'apprenant et dans la page de correction.
+
 ## 2.11.1
 - Testé avec **Elementor 4.4** : les 4 widgets (vidéo, document, exercice, quiz), les restrictions, la correction et l'aperçu fonctionnent.
 - Correctif Elementor : une condition laissée sur « Contenu terminé » (valeur par défaut) était perdue à l'enregistrement. Idem pour le délai laissé à 7 jours.

@@ -25,10 +25,36 @@ function if_user_submissions( $user_id, $notion_id ) {
 	$t    = if_table( 'submissions' );
 	$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $t WHERE user_id = %d AND notion_id = %d ORDER BY submitted_at ASC, id ASC", $user_id, $notion_id ) ); // phpcs:ignore
 	$out  = array();
+	$first = array();
 	foreach ( $rows as $r ) {
+		if ( ! isset( $first[ $r->exercise_key ] ) ) {
+			$first[ $r->exercise_key ] = $r->submitted_at;
+		}
+		$r->first_at = $first[ $r->exercise_key ];
 		$out[ $r->exercise_key ] = $r; // la plus récente écrase les précédentes.
 	}
 	return $out;
+}
+
+/** Date et heure lisibles : « 17 novembre 2026 à 14:32 ». */
+function if_datetime_label( $mysql ) {
+	/* translators: 1: date, 2: heure */
+	return sprintf( __( '%1$s à %2$s', 'catalogue-formations' ), mysql2date( get_option( 'date_format' ), $mysql ), mysql2date( 'H:i', $mysql ) );
+}
+
+/** Lignes « Déposé le… » et, si la réponse a été renvoyée, « Modifié le… » (comme Moodle). */
+function if_submission_dates_html( $sub ) {
+	if ( ! isset( $sub->first_at ) ) {
+		global $wpdb;
+		$t             = if_table( 'submissions' );
+		$sub->first_at = $wpdb->get_var( $wpdb->prepare( "SELECT MIN(submitted_at) FROM $t WHERE user_id = %d AND notion_id = %d AND exercise_key = %s", $sub->user_id, $sub->notion_id, $sub->exercise_key ) ); // phpcs:ignore
+	}
+	$first = $sub->first_at ? $sub->first_at : $sub->submitted_at;
+	$html  = '<span class="if-date">' . esc_html( sprintf( __( 'Déposé le %s', 'catalogue-formations' ), if_datetime_label( $first ) ) ) . '</span>';
+	if ( $first !== $sub->submitted_at ) {
+		$html .= '<br><span class="if-date">' . esc_html( sprintf( __( 'Modifié le %s', 'catalogue-formations' ), if_datetime_label( $sub->submitted_at ) ) ) . '</span>';
+	}
+	return $html;
 }
 
 function if_get_submission( $id ) {

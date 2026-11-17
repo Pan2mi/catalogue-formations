@@ -359,7 +359,7 @@ function if_page_corrections() {
 		$ex = if_find_item( $s->notion_id, $s->exercise_key, 'exercise' );
 		echo '<p><a href="' . esc_url( if_admin_url( 'if-corrections' ) ) . '">← ' . esc_html__( 'Retour à la liste', 'catalogue-formations' ) . '</a></p>';
 		echo '<h2>' . esc_html( get_the_title( $s->notion_id ) . ' — ' . ( $ex ? $ex['title'] : '' ) ) . '</h2>';
-		echo '<p><strong>' . esc_html__( 'Apprenant', 'catalogue-formations' ) . ' :</strong> ' . esc_html( if_user_name( $s->user_id ) ) . ' · ' . esc_html( mysql2date( get_option( 'date_format' ) . ' H:i', $s->submitted_at ) ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Apprenant', 'catalogue-formations' ) . ' :</strong> ' . esc_html( if_user_name( $s->user_id ) ) . '<br>' . if_submission_dates_html( $s ) . '</p>'; // phpcs:ignore
 		if ( $ex ) {
 			echo '<div class="if-card-admin"><h3>' . esc_html__( 'Consigne', 'catalogue-formations' ) . '</h3>' . wp_kses_post( wpautop( $ex['instructions'] ) ) . '</div>';
 		}

@@ -281,7 +281,7 @@ function if_render_item( $notion_id, $type, $item, $inner_html = null, $wrapper 
 			echo '<div class="if-instructions">' . wp_kses_post( wpautop( isset( $item['instructions'] ) ? $item['instructions'] : '' ) ) . '</div>';
 		}
 		if ( $sub ) {
-			echo '<div class="if-answer"><p><strong>' . esc_html__( 'Ma dernière réponse', 'catalogue-formations' ) . '</strong> — ' . esc_html( mysql2date( get_option( 'date_format' ), $sub->submitted_at ) ) . '</p>';
+			echo '<div class="if-answer"><p><strong>' . esc_html__( 'Ma réponse', 'catalogue-formations' ) . '</strong><br>' . if_submission_dates_html( $sub ) . '</p>'; // phpcs:ignore
 			if ( $sub->answer ) {
 				echo wp_kses_post( wpautop( $sub->answer ) );
 			}
