@@ -25,6 +25,10 @@ function if_updater_basename() {
 
 /** Dernière release GitHub (mise en cache 6 h). */
 function if_updater_release( $force = false ) {
+	// « Vérifier à nouveau » (Tableau de bord > Mises à jour) interroge aussi GitHub tout de suite.
+	if ( ! empty( $_GET['force-check'] ) && current_user_can( 'update_plugins' ) ) { // phpcs:ignore
+		$force = true;
+	}
 	$cache = get_site_transient( 'if_gh_release' );
 	if ( ! $force && false !== $cache ) {
 		return $cache ? $cache : null;

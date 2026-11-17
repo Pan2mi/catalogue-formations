@@ -1,5 +1,8 @@
 # Journal des versions
 
+## 2.11.4
+- « Vérifier à nouveau » (Tableau de bord > Mises à jour) interroge GitHub immédiatement, sans attendre le cache de 6 h.
+
 ## 2.11.3
 - Extensions : le lien « Activer les mises à jour auto » apparaît aussi pour Catalogue de formations (mises à jour depuis GitHub).
 
