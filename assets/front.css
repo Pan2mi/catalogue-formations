@@ -96,6 +96,13 @@
 .if-feedback--redo { border-color: #dba617; background: #fff8e5; }
 
 /* Lecteur PDF intégré (PDF.js) */
+/* Bloc Fichier avec aperçu : lecteur sur toute la largeur, puis nom du fichier et bouton « Télécharger » côte à côte. */
+.wp-block-file.cf-file--viewer, .wp-block-file:has(> .cf-pdf) { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 8px 12px; }
+.wp-block-file.cf-file--viewer.aligncenter { justify-content: center; }
+.wp-block-file.cf-file--viewer.alignright { justify-content: flex-end; }
+.wp-block-file.cf-file--viewer > .cf-pdf, .wp-block-file.cf-file--viewer > .wp-block-file__embed, .wp-block-file:has(> .cf-pdf) > .cf-pdf { flex: 0 0 100%; width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; margin: 0 0 4px; order: 0; }
+.wp-block-file.cf-file--viewer > :not(.cf-pdf):not(.wp-block-file__embed) { flex: 0 1 auto; min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.wp-block-file.cf-file--viewer > .wp-block-file__button, .wp-block-file:has(> .cf-pdf) > .wp-block-file__button { margin: 0; flex: 0 0 auto; }
 .cf-pdf { --cf-pdf-bg: #e9ecf1; margin: 8px 0; border: 1px solid #d5d9e0; border-radius: 8px; overflow: hidden; background: var(--cf-pdf-bg); }
 .cf-pdf__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding: 6px 8px; background: #fff; border-bottom: 1px solid #d5d9e0; font-size: .95rem; color: #1d2733; }
 .cf-pdf__bar[hidden] { display: none; }

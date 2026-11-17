@@ -100,6 +100,8 @@ function if_pdf_filter_file_block( $html, $url, $title ) {
 		return $html; // pas d'aperçu choisi dans le bloc Fichier : on laisse les liens.
 	}
 	$height = preg_match( '/height:\s*(\d+)px/i', $m[0], $h ) ? (int) $h[1] : 600;
+	// Repère pour la mise en page : aperçu sur toute la largeur, nom du fichier et bouton en dessous.
+	$html = preg_replace( '#(<div\b[^>]*\bclass="[^"]*\bwp-block-file\b)#i', '$1 cf-file--viewer', $html, 1 );
 	if ( 'pdfjs' === $cfg['viewer'] ) {
 		$html = str_replace( $m[0], if_pdf_viewer_html( $url, $title, $height, $cfg['download'] ), $html );
 		$html = str_replace( ' data-wp-interactive="core/file"', '', $html ); // le script du bloc Fichier ne gère plus l'aperçu.
